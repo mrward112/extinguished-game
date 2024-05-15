@@ -85,3 +85,6 @@ class Obstacle:
         The position adjustment by radius is because images are drawn from the top-left corner.
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
+
+    def hitbox():
+        return True
