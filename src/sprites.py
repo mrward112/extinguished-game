@@ -3,6 +3,7 @@
 
 # Standard library imports.
 from typing import Sequence
+from pathlib import Path
 
 # Third-party library imports.
 import pygame as pg
@@ -28,6 +29,21 @@ class Player:
         self.radius: int = 20  # The radius used for circular collision code in pixels.
         # We don't have a player image yet, so I will use a placeholder.
         self.image = utils.make_circle_image(self.radius, GREEN)
+
+        astro = self.image
+        astro_rect = astro.get_rect()
+        astro_mask = pg.mask.from_surface(astro)
+        mask_image = astro_mask.to_surface()
+
+        # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
+        #     print("Collision detected!")
+
+        # Load the player image and mask.
+
+        # astro = pg.image.load(Path(r".\extinguished-game\images\astro.png").resolve())
+        # astro_rect = astro.get_rect()
+        # astro_mask = pg.mask.from_surface(astro)
+        # mask_image = astro_mask.to_surface()
 
     def update(self, dt: float, screen_size: pg.Vector2):
         """Update the player.

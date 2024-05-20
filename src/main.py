@@ -17,7 +17,7 @@ import functools  # Don't worry about this import. It's advanced.
 import pygame as pg
 
 # Local library imports.
-from colors import *
+from   colors import *
 import utils
 import sprites
 
