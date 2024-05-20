@@ -26,6 +26,7 @@ import sprites
 DEBUG = True  # We can tie debug features to this variable to easily turn them on or off.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
 SCREEN_SIZE = pg.Vector2(800, 600)  # This is a Vector2 to enable easy mathematical operations later.
+APPLICATION_DIRECTORY = Path(__file__, "../..").resolve()  # This is the top level folder of the project.
 
 
 # Helpful application functions.
@@ -49,9 +50,10 @@ def main() -> None:
     # Should be called before creating the screen for best system compatibility.
     pg.display.set_caption("Extinguished")
     # Load in the icon for the window.
+    # Find the file by searching from the application directory Path object.
     # Don't convert it or the application will crash (because display is not initialized).
     # I chose a large icon because macOS uses large system icons on the dock (taskbar).
-    icon_image = utils.load_image(Path("../images/icon.png"), False)
+    icon_image = utils.load_image(APPLICATION_DIRECTORY / "images/icon.png", False)
     # Set the icon of the window.
     # Should be called before creating the screen for best system compatibility.
     pg.display.set_icon(icon_image)
