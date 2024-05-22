@@ -101,3 +101,9 @@ class Obstacle:
         The position adjustment by radius is because images are drawn from the top-left corner.
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
+
+    def get_hitbox(self) -> pg.Rect:
+        """Get the hitbox rectangle of the obstacle."""
+        hitbox_size = 2 * self.radius  # Hitbox is a square enclosing the circle
+        hitbox_rect = pg.Rect(self.pos.x - self.radius, self.pos.y - self.radius, hitbox_size, hitbox_size)
+        return hitbox_rect
