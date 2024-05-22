@@ -65,6 +65,7 @@ class Player:
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
 
+# to access hitbox use "Surface.get_rect()"
 class Obstacle:
     def __init__(self, pos: Sequence[float], radius: int):
         self.pos = pg.Vector2(pos)
@@ -88,5 +89,5 @@ class Obstacle:
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
 
-        # Draw the hitbox (1 is the width of the rectangle border)
+        # draw hitbox
         pg.draw.rect(screen, RED, self.rect, 1)
