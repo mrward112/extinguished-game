@@ -71,8 +71,8 @@ class Obstacle:
         self.radius: int = radius
         self.image = utils.make_circle_image(radius, YELLOW)
 
-        # If needed I can center the rect on the position with "center=self.pos" inside the (parentheses)
-        self.rect = self.image.get_rect()
+        # center the rect on the position
+        self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, dt: float):
         """Update obstacles.
