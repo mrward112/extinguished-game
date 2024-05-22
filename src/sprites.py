@@ -65,12 +65,14 @@ class Player:
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
 
-
 class Obstacle:
-    def __init__(self, pos: Sequence[float], radius: int):
+    def __init__(self, pos: Sequence[float], radius: int, rect):
         self.pos = pg.Vector2(pos)
         self.radius: int = radius
         self.image = utils.make_circle_image(radius, YELLOW)
+
+        # If needed I can center the rect on the position with "center=self.pos" inside the (parentheses)
+        self.rect = self.image.get_rect()
 
     def update(self, dt: float):
         """Update obstacles.
@@ -86,8 +88,5 @@ class Obstacle:
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
 
-    def get_hitbox(self) -> pg.Rect:
-        """Get the hitbox rectangle of the obstacle."""
-        hitbox_size = 2 * self.radius  # Hitbox is a square enclosing the circle
-        hitbox_rect = pg.Rect(self.pos.x - self.radius, self.pos.y - self.radius, hitbox_size, hitbox_size)
-        return hitbox_rect
+        # Draw the hitbox (1 is the width of the rectangle border)
+        pg.draw.rect(screen, RED, self.rect, 1)
