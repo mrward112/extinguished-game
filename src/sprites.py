@@ -66,7 +66,7 @@ class Player:
         screen.blit(self.image, self.pos - (self.radius, self.radius))
 
 class Obstacle:
-    def __init__(self, pos: Sequence[float], radius: int, rect):
+    def __init__(self, pos: Sequence[float], radius: int):
         self.pos = pg.Vector2(pos)
         self.radius: int = radius
         self.image = utils.make_circle_image(radius, YELLOW)
