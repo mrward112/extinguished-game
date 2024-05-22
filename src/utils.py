@@ -23,7 +23,7 @@ MISSING_IMAGE.fill(MAGENTA, (0, 0, 16, 16))
 MISSING_IMAGE.fill(MAGENTA, (16, 16, 32, 32))
 
 
-def load_image(file: Path, convert: bool = True) -> pg.Surface:
+def load_image(file: Path, convert: bool = True, alpha: bool = False) -> pg.Surface:
     """Load an image from the given file and optionally convert it to the display pixel format.
 
     The only reason you'd want to avoid conversion is loading images before the display is initialized
@@ -32,11 +32,15 @@ def load_image(file: Path, convert: bool = True) -> pg.Surface:
     """
     try:
         # Load the image from the file and return it as a Surface.
+        # Convert it according to the given parameters.
         if convert:
+            if alpha:
+                return pg.image.load(file).convert_alpha()
             return pg.image.load(file).convert()
         return pg.image.load(file)
     except FileNotFoundError:
         # Return the missing image Surface instead.
+        # Don't bother with converting alpha, because MISSING_IMAGE has no transparency.
         if convert:
             return MISSING_IMAGE.convert()
         return MISSING_IMAGE
