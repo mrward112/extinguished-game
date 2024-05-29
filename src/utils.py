@@ -133,9 +133,9 @@ class ParticleGroup:
     def update(self, dt: float, *args, **kwargs):
         self.particles = [p for p in self.particles if p.update(dt, *args, **kwargs)]
 
-    def _get_draw_tuple(self, p: Particle) -> tuple[pg.Surface, Sequence[float]]:
+    def _get_draw_tuple(self, p: Particle, camera: pg.Vector2) -> tuple[pg.Surface, Sequence[float]]:
         image = self.image_cache.get_image(p.cache_lookup())
-        return image, p.draw_pos(image)
+        return image, p.draw_pos(image) + camera
 
-    def draw(self, screen: pg.Surface, blend: int = pg.BLENDMODE_NONE):
-        screen.fblits([self._get_draw_tuple(p) for p in self.particles], blend if blend else self.blend)
+    def draw(self, screen: pg.Surface, camera: pg.Vector2, blend: int = pg.BLENDMODE_NONE):
+        screen.fblits([self._get_draw_tuple(p, camera) for p in self.particles], blend if blend else self.blend)
