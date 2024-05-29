@@ -19,7 +19,7 @@ PLAYER_PUSH_ACC = 300  # The acceleration that is applied to the player when the
 
 
 class Player:
-    def __init__(self, pos: Sequence[float]):
+    def __init__(self, pos: Sequence[float], image: pg.Surface):
         # I'm not using type hints for some variables here because their type is obvious.
         self.pos = pg.Vector2(pos)  # The position of the player, in pixels.
         self.vel = pg.Vector2(0, 0)  # The velocity of the player.
@@ -28,22 +28,20 @@ class Player:
         self.pushing: bool = False  # Whether the extinguisher is active and pushing.
         self.radius: int = 20  # The radius used for circular collision code in pixels.
         # We don't have a player image yet, so I will use a placeholder.
-        self.image = utils.make_circle_image(self.radius, GREEN)
+        # self.image = utils.make_circle_image(self.radius, GREEN)
+        self.image = image
 
-        astro = self.image
-        astro_rect = astro.get_rect()
-        astro_mask = pg.mask.from_surface(astro)
-        mask_image = astro_mask.to_surface()
+        # center the rect on the position of the player starting point
+        # self.rect = self.image.get_rect(center=self.pos)
+        
 
-        # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
-        #     print("Collision detected!")
+
 
         # Load the player image and mask.
 
-        # astro = pg.image.load(Path(r".\extinguished-game\images\astro.png").resolve())
-        # astro_rect = astro.get_rect()
-        # astro_mask = pg.mask.from_surface(astro)
-        # mask_image = astro_mask.to_surface()
+        astro = self.image
+        self.mask = pg.mask.from_surface(astro)
+        self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, dt: float, screen_size: pg.Vector2):
         """Update the player.
@@ -74,12 +72,23 @@ class Player:
             self.vel.y *= -1
             self.pos.y = screen_size.y - self.radius
 
+        # Update the player's rect position.
+        self.rect = self.image.get_rect(center=self.pos)
+
+        # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
+        #     print("Collision detected!")
+
     def draw(self, screen: pg.Surface):
         """Draw the player to the screen.
 
         The position adjustment by radius is because images are drawn from the top-left corner.
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
+        screen.blit(self.mask.to_surface(), (0,0))
+
+
+        # draw hitbox
+        pg.draw.rect(screen, RED, self.rect, 1)
 
 # to access hitbox use "Surface.get_rect()"
 class Obstacle:

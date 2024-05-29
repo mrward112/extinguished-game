@@ -69,7 +69,7 @@ def main() -> None:
 
     # Create the player object.
     # Center it in the middle of the screen.
-    player = sprites.Player(SCREEN_SIZE // 2)
+    player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(APPLICATION_DIRECTORY / "images/astro.png", alpha= True))
 
     # Create 10 random obstacles.
     obstacles = [sprites.Obstacle((random.randint(30, int(SCREEN_SIZE.x - 30)),
