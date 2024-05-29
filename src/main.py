@@ -17,7 +17,7 @@ import functools  # Don't worry about this import. It's advanced.
 import pygame as pg
 
 # Local library imports.
-from   colors import *
+from colors import *
 import utils
 import sprites
 
@@ -69,7 +69,7 @@ def main() -> None:
 
     # Create the player object.
     # Center it in the middle of the screen.
-    player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(APPLICATION_DIRECTORY / "images/astro.png", alpha= True))
+    player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(APPLICATION_DIRECTORY / "images/astro.png", alpha=True))
 
     # Create 10 random obstacles.
     obstacles = [sprites.Obstacle((random.randint(30, int(SCREEN_SIZE.x - 30)),
@@ -77,7 +77,7 @@ def main() -> None:
                                   random.randint(30, 60)) for _ in range(10)]
 
     # I'm creating a ParticleGroup here.
-    # Don't worry if you don't understand, I'll handle all of the particle code.
+    # Don't worry if you don't understand, I'll handle all the particle code.
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
 
