@@ -165,7 +165,7 @@ def main() -> None:
             smoke_particles.add(utils.SmokeParticle(player.pos, vel_vector + player.vel, random.randint(3, 5)))
 
         # Update the player.
-        player.update(dt, SCREEN_SIZE)
+        player.update(dt, SCREEN_SIZE, obstacles)
 
         # Update the obstacles.
         for obstacle in obstacles:

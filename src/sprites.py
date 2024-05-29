@@ -30,17 +30,14 @@ class Player:
         # We don't have a player image yet, so I will use a placeholder.
         # self.image = utils.make_circle_image(self.radius, GREEN)
         self.image = image
-
-        # center the rect on the position of the player starting point
-        # self.rect = self.image.get_rect(center=self.pos)
         
-
-
 
         # Load the player image and mask.
 
         astro = self.image
         self.mask = pg.mask.from_surface(astro)
+        
+        #centers the mask on the middle of the image
         self.rect = self.image.get_rect(center=self.pos)
 
     def update(self, dt: float, screen_size: pg.Vector2):
@@ -75,14 +72,15 @@ class Player:
         # Update the player's rect position.
         self.rect = self.image.get_rect(center=self.pos)
 
-        # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
-        #     print("Collision detected!")
+        collide = pg.Rect.colliderect()
 
     def draw(self, screen: pg.Surface):
         """Draw the player to the screen.
 
         The position adjustment by radius is because images are drawn from the top-left corner.
         """
+
+        # Draw the player image and mask.
         screen.blit(self.image, self.pos - (self.radius, self.radius))
         screen.blit(self.mask.to_surface(), (0,0))
 
