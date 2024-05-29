@@ -33,6 +33,7 @@ ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
     "Asteroid_140.png",
     "Asteroid_160.png",
 )
+BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
 
 # Helpful application functions.
@@ -76,6 +77,8 @@ def main() -> None:
     font = pg.Font(None, 24)
     # Create the game bounds (width and height).
     game_size = pg.Vector2(1600, 1200)
+    # Get the background image.
+    background_image = utils.load_image(IMAGE_DIRECTORY / BACKGROUND_IMAGE_FILENAME)
 
     # Create the player object.
     # Center it in the middle of the screen.
@@ -197,7 +200,7 @@ def main() -> None:
         camera = pg.Vector2(SCREEN_SIZE) // 2 - player.pos
 
         # Draw everything to the screen.
-        screen.fill(BLACK)  # Clear the screen completely by filling it with BLACK.
+        screen.blit(background_image, (0, 0))  # Clear the screen completely by pasting the background image.
 
         # Draw the obstacles.
         # There are faster and more efficient ways to create and draw the obstacle images,
