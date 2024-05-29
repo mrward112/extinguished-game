@@ -37,7 +37,7 @@ class Player:
         #centers the mask on the middle of the image
         self.rect = self.image.get_rect(center=self.pos)
 
-    def update(self, dt: float, screen_size: pg.Vector2):
+    def update(self, dt: float, screen_size: pg.Vector2, obstacles: list["Obstacle"]):
         """Update the player.
 
         This function handles movement, collision detection, etc.
@@ -69,7 +69,9 @@ class Player:
         # Update the player's rect position.
         self.rect = self.image.get_rect(center=self.pos)
 
-        collide = pg.Rect.colliderect()
+        # Collision detection with obstacles.
+        if self.colliderect(obstacles):
+            self.vel *= -1
 
     def draw(self, screen: pg.Surface):
         """Draw the player to the screen.
