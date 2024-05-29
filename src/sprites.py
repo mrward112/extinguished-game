@@ -29,17 +29,10 @@ class Player:
         # We don't have a player image yet, so I will use a placeholder.
         # self.image = utils.make_circle_image(self.radius, GREEN)
         self.image = image
-<<<<<<< HEAD
         
-=======
-
-        # center the rect on the position of the player starting point
-        # self.rect = self.image.get_rect(center=self.pos)
->>>>>>> 544eadf957e62e969d72648e8548ee9d47fd1b3a
 
         # Load the player image and mask.
-        astro = self.image
-        self.mask = pg.mask.from_surface(astro)
+        self.mask = pg.mask.from_surface(self.image)
         
         #centers the mask on the middle of the image
         self.rect = self.image.get_rect(center=self.pos)
