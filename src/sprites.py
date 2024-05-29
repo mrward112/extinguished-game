@@ -3,7 +3,6 @@
 
 # Standard library imports.
 from typing import Sequence
-from pathlib import Path
 
 # Third-party library imports.
 import pygame as pg
@@ -33,12 +32,8 @@ class Player:
 
         # center the rect on the position of the player starting point
         # self.rect = self.image.get_rect(center=self.pos)
-        
-
-
 
         # Load the player image and mask.
-
         astro = self.image
         self.mask = pg.mask.from_surface(astro)
         self.rect = self.image.get_rect(center=self.pos)
@@ -84,13 +79,12 @@ class Player:
         The position adjustment by radius is because images are drawn from the top-left corner.
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
-        screen.blit(self.mask.to_surface(), (0,0))
+        screen.blit(self.mask.to_surface(), (0, 0))
 
-
-        # draw hitbox
+        # Draw the hitbox.
         pg.draw.rect(screen, RED, self.rect, 1)
 
-# to access hitbox use "Surface.get_rect()"
+
 class Obstacle:
     def __init__(self, pos: Sequence[float], radius: int):
         self.pos = pg.Vector2(pos)
@@ -114,5 +108,5 @@ class Obstacle:
         """
         screen.blit(self.image, self.pos - (self.radius, self.radius))
 
-        # draw hitbox
+        # Draw the hitbox.
         pg.draw.rect(screen, RED, self.rect, 1)
