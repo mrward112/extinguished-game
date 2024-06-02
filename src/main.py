@@ -35,6 +35,21 @@ ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
 )
 BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
+def draw_tank_bar(tank_level, screen):
+    """ Draw the tank level bar on the screen. """
+    bar_width = 200
+    bar_height = 30
+    bar_x = 10
+    bar_y = 30
+
+    # Draw the background of the bar (empty part)
+    pg.draw.rect(screen, RED, (bar_x, bar_y, bar_width, bar_height))
+
+    # Calculate the width of the filled part based on the tank level
+    fill_width = (tank_level / 100) * bar_width
+
+    # Draw the filled part of the bar
+    pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
 
 # Helpful application functions.
 def terminate() -> None:
@@ -97,6 +112,13 @@ def main() -> None:
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
 
+    # Starting Fuel Level    
+    tank_level = 100
+
+    # Set depletion time for extinguisher
+    DECREMENT_TANK_LEVEL = pg.USEREVENT + 1
+    pg.time.set_timer(DECREMENT_TANK_LEVEL, 200)
+
     # Enter the game loop.
     while True:
         # Get the delta-time and fps.
@@ -106,7 +128,6 @@ def main() -> None:
         # This makes the velocities of our objects easier to reason with.
         dt = clock.tick(FPS) / 1000.0
         fps = clock.get_fps()  # This is the average frames-per-second over the last ten frames.
-
         # Handle events.
         # Pygame provides a queue of events that occurred last frame that we can iterate over.
         for event in pg.event.get():
@@ -152,6 +173,13 @@ def main() -> None:
                 if event.button == 1:  # Button 1 is the left mouse button.
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
+            
+            if event.type == DECREMENT_TANK_LEVEL:
+                # Subtract tank level when the custom event is triggered
+                if player.pushing:
+                    tank_level -= 1
+
+
 
         # This is another way of handling events.
         # Choosing this method over the other depends on your use case.
@@ -189,6 +217,7 @@ def main() -> None:
         # Update the player.
         player.update(dt, game_size)
 
+
         # Update the obstacles.
         for obstacle in obstacles:
             obstacle.update(dt)
@@ -201,6 +230,12 @@ def main() -> None:
 
         # Draw everything to the screen.
         screen.blit(background_image, (0, 0))  # Clear the screen completely by pasting the background image.
+
+        # Update Bar
+        draw_tank_bar(tank_level, screen)
+        # Display tank level as text
+        tank_text = font.render(f'Tank Level: {tank_level}', True, WHITE)
+        screen.blit(tank_text, (10, 10))
 
         # Draw the obstacles.
         # There are faster and more efficient ways to create and draw the obstacle images,
