@@ -35,7 +35,13 @@ ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
 )
 BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
-# Draw extinguisher function
+FUEL_LEVEL_TEXT_POS = pg.Vector2(32, 50)
+FUEL_LEVEL_IMAGE_POS = pg.Vector2(10, 25)
+FUEL_LEVEL_BAR_OFFSET = pg.Vector2(20, 15)
+FUEL_LEVEL_BAR_POS = FUEL_LEVEL_IMAGE_POS + (20, 15)
+
+
+# Draw extinguisher tank function.
 def draw_tank_bar(tank_level, screen):
     """ Draw the tank level bar on the screen. """
     bar_width = 200
@@ -51,6 +57,7 @@ def draw_tank_bar(tank_level, screen):
 
     # Draw the filled part of the bar
     pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
+
 
 # Helpful application functions.
 def terminate() -> None:
@@ -113,12 +120,11 @@ def main() -> None:
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
 
-    # Starting Fuel Level    
-    tank_level = 100
+    # Starting tank level.
+    tank_level = sprites.TANK_MAX
 
-    # Set depletion time for extinguisher
-    DECREMENT_TANK_LEVEL = pg.USEREVENT + 1
-    pg.time.set_timer(DECREMENT_TANK_LEVEL, 200)
+    # The tank image.
+    tank_image = utils.load_image(IMAGE_DIRECTORY / "tank_bar.png", alpha=True)
 
     # Enter the game loop.
     while True:
@@ -174,11 +180,6 @@ def main() -> None:
                 if event.button == 1:  # Button 1 is the left mouse button.
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
-            
-            if event.type == DECREMENT_TANK_LEVEL:
-                # Subtract tank level when the custom event is triggered
-                if player.pushing:
-                    tank_level -= 1
 
         # This is another way of handling events.
         # Choosing this method over the other depends on your use case.
@@ -207,6 +208,13 @@ def main() -> None:
 
         # Update everything.
 
+        # Update the tank.
+        if player.pushing:
+            tank_level -= sprites.TANK_DECREASE * dt
+            if tank_level <= 0:
+                tank_level = 0
+                player.pushing = False
+
         # Add smoke particles if extinguisher is active.
         if player.pushing:
             vel_vector = pg.Vector2()
@@ -215,7 +223,6 @@ def main() -> None:
 
         # Update the player.
         player.update(dt, game_size)
-
 
         # Update the obstacles.
         for obstacle in obstacles:
@@ -229,12 +236,6 @@ def main() -> None:
 
         # Draw everything to the screen.
         screen.blit(background_image, (0, 0))  # Clear the screen completely by pasting the background image.
-
-        # Update Bar
-        draw_tank_bar(tank_level, screen)
-        # Display tank level as text
-        tank_text = font.render(f'Tank Level: {tank_level}', True, WHITE)
-        screen.blit(tank_text, (10, 10))
 
         # Draw the obstacles.
         # There are faster and more efficient ways to create and draw the obstacle images,
@@ -259,6 +260,23 @@ def main() -> None:
 
         # The game boundaries.
         pg.draw.rect(screen, GAME_BORDER, (*camera, *game_size), 10)
+
+        # Draw the tank bar.
+        # draw_tank_bar(tank_level, screen)
+        # Render the image tank bar.
+        pg.draw.rect(screen, BLACK, (*FUEL_LEVEL_BAR_POS, tank_image.get_width() - FUEL_LEVEL_BAR_OFFSET.x, 35))
+        bar_width = (tank_image.get_width() - FUEL_LEVEL_BAR_OFFSET.x) * (tank_level / sprites.TANK_MAX)
+        pg.draw.rect(screen, WHITE, (*FUEL_LEVEL_BAR_POS, bar_width, 35))
+        screen.blit(tank_image, FUEL_LEVEL_IMAGE_POS)
+        # Display tank level as text.
+        if tank_level == sprites.TANK_MAX:
+            tank_text = "Tank: FULL"
+        elif tank_level <= 0:
+            tank_text = "Tank: EMPTY"
+        else:
+            tank_text = f"Tank: {int(tank_level)}/{sprites.TANK_MAX}"
+        tank_text_surf = font.render(tank_text, True, RED)
+        screen.blit(tank_text_surf, FUEL_LEVEL_TEXT_POS)
 
         # Show the fps.
         if debug:

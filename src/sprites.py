@@ -12,6 +12,8 @@ import pygame as pg
 PLAYER_ROTATE_SPEED = 300  # The speed the keyboard can rotate the player angle.
 PLAYER_PUSH_ACC = 300  # The acceleration that is applied to the player when the extinguisher is active.
 PLAYER_CIRCLE_RADIUS = 30  # The radius of the collision circle for the player.
+TANK_DECREASE = 5  # The speed the tank should decrease at per second.
+TANK_MAX = 100  # The maximum value of the tank.
 MAX_ASTEROID_ROT_SPEED = 50  # The maximum speed an asteroid can rotate at.
 
 
