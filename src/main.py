@@ -35,6 +35,7 @@ ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
 )
 BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
+# Draw extinguisher function
 def draw_tank_bar(tank_level, screen):
     """ Draw the tank level bar on the screen. """
     bar_width = 200
@@ -178,8 +179,6 @@ def main() -> None:
                 # Subtract tank level when the custom event is triggered
                 if player.pushing:
                     tank_level -= 1
-
-
 
         # This is another way of handling events.
         # Choosing this method over the other depends on your use case.
