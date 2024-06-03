@@ -70,7 +70,7 @@ class Player:
         self.rect = self.image.get_rect(center=self.pos)
 
         # Collision detection with obstacles.
-        if self.colliderect(obstacles):
+        if self.rect.colliderect(obstacles[0].rect):
             self.vel *= -1
 
     def draw(self, screen: pg.Surface):
