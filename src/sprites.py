@@ -30,10 +30,11 @@ class Player:
         self.image = pg.transform.rotate(self.base_image, -self.angle)  # This image is used for drawing.
         self.rect = self.image.get_rect(center=self.pos)  # This is used only for drawing.
 
+
         # Create the player mask.
         self.mask = pg.mask.from_surface(self.image)
 
-    def update(self, dt: float, game_bounds: pg.Vector2):
+    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]):
         """Update the player.
 
         This function handles movement, collision detection, etc.
@@ -66,14 +67,12 @@ class Player:
         self.image = pg.transform.rotate(self.base_image, -self.angle)
         self.rect = self.image.get_rect(center=self.pos)
 
-<<<<<<< HEAD
         # Collision detection with obstacles.
-        if self.rect.colliderect(obstacles[0].rect):
-            self.vel *= -1
-=======
-        # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
-        #     print("Collision detected!")
->>>>>>> d3d49da8a3338ba33f8494ebdc88d90c2bc5a415
+        for obstacle in obstacles:
+            if self.mask.overlap(obstacle.mask, (obstacle.pos - self.pos)):
+                # The player collided with an obstacle.
+                # For now, just bounce off the obstacle.
+                self.vel = pg.Vector2(-self.vel.x, -self.vel.y)
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the player to the screen."""
@@ -91,6 +90,7 @@ class Obstacle:
         self.angle = random.randrange(360)
         self.image = pg.transform.rotate(self.base_image, self.angle)
         self.rect = self.image.get_rect(center=self.pos)  # Used only for drawing.
+        self.mask = pg.mask.from_surface(self.image)
 
     def update(self, dt: float):
         """Update the obstacle.
