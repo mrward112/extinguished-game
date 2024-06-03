@@ -66,14 +66,12 @@ class Player:
         self.image = pg.transform.rotate(self.base_image, -self.angle)
         self.rect = self.image.get_rect(center=self.pos)
 
-<<<<<<< HEAD
         # Collision detection with obstacles.
         if self.rect.colliderect(obstacles[0].rect):
             self.vel *= -1
-=======
+
         # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
         #     print("Collision detected!")
->>>>>>> d3d49da8a3338ba33f8494ebdc88d90c2bc5a415
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the player to the screen."""
