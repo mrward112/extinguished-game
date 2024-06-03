@@ -67,8 +67,8 @@ class Player:
         self.rect = self.image.get_rect(center=self.pos)
 
         # Collision detection with obstacles.
-        if self.rect.colliderect(obstacles[0].rect):
-            self.vel *= -1
+        # if self.rect.colliderect(obstacles[0].rect):
+        #     self.vel *= -1
 
         # if astro_mask.overlap(astroid_mask, (pos[0] - astro_rect.x, pos[1] - astro_rect.y)):
         #     print("Collision detected!")
