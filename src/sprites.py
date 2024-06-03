@@ -79,7 +79,13 @@ class Player:
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the player to the screen."""
         screen.blit(self.image, self.rect.topleft + camera)
-        # screen.blit(self.mask.to_surface(), (0, 0))
+        
+        # uncomment this to show the masks for the player
+
+        # self.mask = pg.mask.from_surface(self.image)
+        # mask_image = self.mask.to_surface()
+
+        # screen.blit(mask_image, self.rect.topleft + camera)
 
 
 class Obstacle:
@@ -107,3 +113,10 @@ class Obstacle:
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the obstacle to the screen."""
         screen.blit(self.image, self.rect.topleft + camera)
+
+
+        # uncomment this to show the masks for the obstacles
+        # self.mask = pg.mask.from_surface(self.image)
+        # mask_image = self.mask.to_surface()
+
+        # screen.blit(mask_image, self.rect.topleft + camera)
