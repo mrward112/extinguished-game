@@ -23,10 +23,40 @@ import sprites
 
 
 # Constants.
-DEBUG = True  # We can tie debug features to this variable to easily turn them on or off.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
 SCREEN_SIZE = pg.Vector2(800, 600)  # This is a Vector2 to enable easy mathematical operations later.
 APPLICATION_DIRECTORY = Path(__file__, "../..").resolve()  # This is the top level folder of the project.
+IMAGE_DIRECTORY = APPLICATION_DIRECTORY / "images"  # The path to the folder of images.
+ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
+    "Asteroid_60.png",
+    "Asteroid_100.png",
+    "Asteroid_140.png",
+    "Asteroid_160.png",
+)
+BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
+
+FUEL_LEVEL_TEXT_POS = pg.Vector2(32, 50)
+FUEL_LEVEL_IMAGE_POS = pg.Vector2(10, 25)
+FUEL_LEVEL_BAR_OFFSET = pg.Vector2(20, 15)
+FUEL_LEVEL_BAR_POS = FUEL_LEVEL_IMAGE_POS + (20, 15)
+
+
+# Draw extinguisher tank function.
+def draw_tank_bar(tank_level, screen):
+    """ Draw the tank level bar on the screen. """
+    bar_width = 200
+    bar_height = 30
+    bar_x = 10
+    bar_y = 30
+
+    # Draw the background of the bar (empty part)
+    pg.draw.rect(screen, RED, (bar_x, bar_y, bar_width, bar_height))
+
+    # Calculate the width of the filled part based on the tank level
+    fill_width = (tank_level / 100) * bar_width
+
+    # Draw the filled part of the bar
+    pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
 
 
 # Helpful application functions.
@@ -53,7 +83,7 @@ def main() -> None:
     # Find the file by searching from the application directory Path object.
     # Don't convert it or the application will crash (because display is not initialized).
     # I chose a large icon because macOS uses large system icons on the dock (taskbar).
-    icon_image = utils.load_image(APPLICATION_DIRECTORY / "images/icon.png", False)
+    icon_image = utils.load_image(IMAGE_DIRECTORY / "icon.png", False)
     # Set the icon of the window.
     # Should be called before creating the screen for best system compatibility.
     pg.display.set_icon(icon_image)
@@ -63,23 +93,38 @@ def main() -> None:
     screen = pg.display.set_mode(SCREEN_SIZE)
     # Create the Clock object, which will keep track of frame-rate and delta-time.
     clock = pg.time.Clock()
+    # Debug variable.
+    debug = True
     # Create a font using pygame-ce's default font.
     # We can add in a nicer font later, this one is for testing.
     font = pg.Font(None, 24)
+    # Create the game bounds (width and height).
+    game_size = pg.Vector2(1600, 1200)
+    # Get the background image.
+    background_image = utils.load_image(IMAGE_DIRECTORY / BACKGROUND_IMAGE_FILENAME)
 
     # Create the player object.
     # Center it in the middle of the screen.
-    player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(APPLICATION_DIRECTORY / "images/astro.png", alpha=True))
+    player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(IMAGE_DIRECTORY / "astro.png", alpha=True))
+
+    # Load in the asteroid images.
+    asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True) for name in ASTEROID_IMAGE_FILENAMES}
 
     # Create 10 random obstacles.
-    obstacles = [sprites.Obstacle((random.randint(30, int(SCREEN_SIZE.x - 30)),
-                                   random.randint(30, int(SCREEN_SIZE.y - 30))),
-                                  random.randint(30, 60)) for _ in range(10)]
+    obstacles = [sprites.Obstacle((random.randint(50, int(SCREEN_SIZE.x - 50)),
+                                   random.randint(50, int(SCREEN_SIZE.y - 50))),
+                                  asteroid_images[random.choice(ASTEROID_IMAGE_FILENAMES)]) for _ in range(10)]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
+
+    # Starting tank level.
+    tank_level = sprites.TANK_MAX
+
+    # The tank image.
+    tank_image = utils.load_image(IMAGE_DIRECTORY / "tank_bar.png", alpha=True)
 
     # Enter the game loop.
     while True:
@@ -90,7 +135,6 @@ def main() -> None:
         # This makes the velocities of our objects easier to reason with.
         dt = clock.tick(FPS) / 1000.0
         fps = clock.get_fps()  # This is the average frames-per-second over the last ten frames.
-
         # Handle events.
         # Pygame provides a queue of events that occurred last frame that we can iterate over.
         for event in pg.event.get():
@@ -100,12 +144,16 @@ def main() -> None:
                 terminate()
 
             if event.type == pg.KEYDOWN:
+                # Toggle debug mode.
+                if event.key == pg.K_F3:
+                    debug = not debug
+
                 if event.key == pg.K_ESCAPE:
                     # The ESCAPE key should bring up a pause menu or something, but we don't have one.
                     # For the time being, we'll just terminate the application.
-                    if DEBUG:
-                        terminate()
+                    terminate()
                     # Show the pause menu.
+                    pass
 
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to use the extinguisher.
@@ -119,8 +167,9 @@ def main() -> None:
             # When the mouse moves, change the player angle.
             # This causes the angle to snap to the mouse, making it a better option than keyboard.
             # I can change this later to move the angle towards the mouse angle at the same speed as the keyboard.
+            # This is based on the screen center, not the player position within the screen.
             if event.type == pg.MOUSEMOTION:
-                player.angle = pg.Vector2(0, 0).angle_to(pg.mouse.get_pos() - player.pos)
+                player.angle = pg.Vector2(0, 0).angle_to(pg.Vector2(pg.mouse.get_pos()) - SCREEN_SIZE // 2)
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Button 1 is the left mouse button.
@@ -153,10 +202,18 @@ def main() -> None:
         # If the mouse is being held down, the angle should follow the mouse.
         # This causes the angle to snap to the mouse, making it a better option than keyboard.
         # I can change this later to move the angle towards the mouse angle at the same speed as the keyboard.
+        # This is based on the screen center, not the player position within the screen.
         if pg.mouse.get_pressed()[0]:
-            player.angle = pg.Vector2(0, 0).angle_to(pg.mouse.get_pos() - player.pos)
+            player.angle = pg.Vector2(0, 0).angle_to(pg.Vector2(pg.mouse.get_pos()) - SCREEN_SIZE // 2)
 
         # Update everything.
+
+        # Update the tank.
+        if player.pushing:
+            tank_level -= sprites.TANK_DECREASE * dt
+            if tank_level <= 0:
+                tank_level = 0
+                player.pushing = False
 
         # Add smoke particles if extinguisher is active.
         if player.pushing:
@@ -165,7 +222,7 @@ def main() -> None:
             smoke_particles.add(utils.SmokeParticle(player.pos, vel_vector + player.vel, random.randint(3, 5)))
 
         # Update the player.
-        player.update(dt, SCREEN_SIZE, obstacles)
+        player.update(dt, game_size)
 
         # Update the obstacles.
         for obstacle in obstacles:
@@ -174,29 +231,55 @@ def main() -> None:
         # Update the particles.
         smoke_particles.update(dt)
 
+        # Update the camera.
+        camera = pg.Vector2(SCREEN_SIZE) // 2 - player.pos
+
         # Draw everything to the screen.
-        screen.fill(BLACK)  # Clear the screen completely by filling it with BLACK.
+        screen.blit(background_image, (0, 0))  # Clear the screen completely by pasting the background image.
 
         # Draw the obstacles.
         # There are faster and more efficient ways to create and draw the obstacle images,
         # but I'm going the simple route for clarity.
         for obstacle in obstacles:
-            obstacle.draw(screen)
+            obstacle.draw(screen, camera)
+            # Draw the collision circles.
+            if debug:
+                pg.draw.circle(screen, CYAN, obstacle.pos + camera, obstacle.radius, 1)
 
         # Draw the player.
-        player.draw(screen)
-        # Draw the player's angle.
-        # We won't need this when we have an image for it.
-        # Don't worry too hard about understanding the vector math here.
-        player_angle_offset = pg.Vector2()
-        player_angle_offset.from_polar((30, player.angle))
-        pg.draw.line(screen, RED, player.pos, player.pos + player_angle_offset, 3)
+        player.draw(screen, camera)
+        # Draw the hit box and player angle.
+        if debug:
+            pg.draw.circle(screen, CYAN, player.pos + camera, player.radius, 1)
+            player_angle_offset = pg.Vector2()
+            player_angle_offset.from_polar((30, player.angle))
+            pg.draw.line(screen, RED, player.pos + camera, player.pos + player_angle_offset + camera, 3)
 
         # Draw the particles.
-        smoke_particles.draw(screen)
+        smoke_particles.draw(screen, camera)
+
+        # The game boundaries.
+        pg.draw.rect(screen, GAME_BORDER, (*camera, *game_size), 10)
+
+        # Draw the tank bar.
+        # draw_tank_bar(tank_level, screen)
+        # Render the image tank bar.
+        pg.draw.rect(screen, BLACK, (*FUEL_LEVEL_BAR_POS, tank_image.get_width() - FUEL_LEVEL_BAR_OFFSET.x, 35))
+        bar_width = (tank_image.get_width() - FUEL_LEVEL_BAR_OFFSET.x) * (tank_level / sprites.TANK_MAX)
+        pg.draw.rect(screen, WHITE, (*FUEL_LEVEL_BAR_POS, bar_width, 35))
+        screen.blit(tank_image, FUEL_LEVEL_IMAGE_POS)
+        # Display tank level as text.
+        if tank_level == sprites.TANK_MAX:
+            tank_text = "Tank: FULL"
+        elif tank_level <= 0:
+            tank_text = "Tank: EMPTY"
+        else:
+            tank_text = f"Tank: {int(tank_level)}/{sprites.TANK_MAX}"
+        tank_text_surf = font.render(tank_text, True, RED)
+        screen.blit(tank_text_surf, FUEL_LEVEL_TEXT_POS)
 
         # Show the fps.
-        if DEBUG:
+        if debug:
             # Read the documentation to see how to render text.
             # The `font.render` method returns a `pygame.Surface` object, which is like an image.
             fps_surf = font.render(f"FPS: {fps:.2f}", True, WHITE, BLACK)
