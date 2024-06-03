@@ -110,10 +110,15 @@ def main() -> None:
     # Load in the asteroid images.
     asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True) for name in ASTEROID_IMAGE_FILENAMES}
 
-    # Create 10 random obstacles.
-    obstacles = [sprites.Obstacle((random.randint(50, int(SCREEN_SIZE.x - 50)),
-                                   random.randint(50, int(SCREEN_SIZE.y - 50))),
-                                  asteroid_images[random.choice(ASTEROID_IMAGE_FILENAMES)]) for _ in range(10)]
+    # Create and place the obstacles for level 1.
+    obstacles = [sprites.Obstacle((300,250), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
+                 sprites.Obstacle((600,450), utils.load_image(IMAGE_DIRECTORY / "Asteroid_140.png", alpha=True)),
+                 sprites.Obstacle((250,900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
+                 sprites.Obstacle((750,550), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
+                 sprites.Obstacle((850,1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
+                 sprites.Obstacle((1400,900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_160.png", alpha=True)),
+                 sprites.Obstacle((1500,650), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
+                 sprites.Obstacle((1500,1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
