@@ -19,3 +19,4 @@ YELLOW = Color(255, 255, 0)
 
 GAME_BORDER = Color(85, 85, 85)
 SMOKE = Color(40, 40, 40)
+TANK_BG_COLOR = (64, 0, 0, 255)

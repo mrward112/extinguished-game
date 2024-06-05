@@ -37,7 +37,6 @@ BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
 FUEL_LEVEL_TEXT_POS = pg.Vector2(32, 50)
 FUEL_LEVEL_IMAGE_POS = pg.Vector2(10, 25)
-FUEL_LEVEL_BAR_OFFSET = pg.Vector2(20, 15)
 FUEL_LEVEL_BAR_POS = FUEL_LEVEL_IMAGE_POS + (20, 15)
 
 
@@ -129,7 +128,10 @@ def main() -> None:
     tank_level = sprites.TANK_MAX
 
     # The tank image.
-    tank_image = utils.load_image(IMAGE_DIRECTORY / "tank_bar.png", alpha=True)
+    tank_image = utils.load_image(IMAGE_DIRECTORY / "tank_bar2.png", alpha=True)
+    tank_fill_image = utils.load_image(IMAGE_DIRECTORY / "tank_fill.png", alpha=True)
+    tank_fill_bg_image = pg.mask.from_surface(tank_fill_image).to_surface(setcolor=TANK_BG_COLOR,
+                                                                          unsetcolor=(0, 0, 0, 0)).convert_alpha()
 
     # Enter the game loop.
     while True:
@@ -269,9 +271,9 @@ def main() -> None:
         # Draw the tank bar.
         # draw_tank_bar(tank_level, screen)
         # Render the image tank bar.
-        pg.draw.rect(screen, BLACK, (*FUEL_LEVEL_BAR_POS, tank_image.get_width() - FUEL_LEVEL_BAR_OFFSET.x, 35))
-        bar_width = (tank_image.get_width() - FUEL_LEVEL_BAR_OFFSET.x) * (tank_level / sprites.TANK_MAX)
-        pg.draw.rect(screen, WHITE, (*FUEL_LEVEL_BAR_POS, bar_width, 35))
+        screen.blit(tank_fill_bg_image, FUEL_LEVEL_IMAGE_POS)
+        bar_width = tank_image.get_width() * (tank_level / sprites.TANK_MAX)
+        screen.blit(tank_fill_image.subsurface(0, 0, bar_width, tank_fill_image.get_height()), FUEL_LEVEL_IMAGE_POS)
         screen.blit(tank_image, FUEL_LEVEL_IMAGE_POS)
         # Display tank level as text.
         if tank_level == sprites.TANK_MAX:
