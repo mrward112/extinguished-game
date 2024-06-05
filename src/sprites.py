@@ -1,11 +1,14 @@
 # -*- coding:utf-8 -*-
 # This file holds various game objects like the player, obstacles, and items.
-import random
 # Standard library imports.
+import random
 from typing import Sequence
 
 # Third-party library imports.
 import pygame as pg
+
+# Local library imports.
+from colors import *
 
 
 # Constants
@@ -15,12 +18,13 @@ PLAYER_CIRCLE_RADIUS = 30  # The radius of the collision circle for the player.
 TANK_DECREASE = 5  # The speed the tank should decrease at per second.
 TANK_MAX = 100  # The maximum value of the tank.
 MAX_ASTEROID_ROT_SPEED = 50  # The maximum speed an asteroid can rotate at.
+ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an asteroid.
 
 
 class Player:
     def __init__(self, pos: Sequence[float], image: pg.Surface):
         # I'm not using type hints for some variables here because their type is obvious.
-        self.pos = pg.Vector2(pos)  # The position of the player, in pixels.
+        self.pos = pg.Vector2(pos)  # noqa The position of the player, in pixels.
         self.vel = pg.Vector2(0, 0)  # The velocity of the player.
         self.acc = pg.Vector2(0, 0)  # The acceleration of the player.
         self.angle = 0.0  # The angle of the fire extinguisher, in degrees.
@@ -32,6 +36,7 @@ class Player:
 
         # Create the player mask.
         self.mask = pg.mask.from_surface(self.image)
+        self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
     def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]):
         """Update the player.
@@ -64,33 +69,26 @@ class Player:
 
         # Update the image and rect.
         self.image = pg.transform.rotate(self.base_image, -self.angle)
+        self.mask = pg.mask.from_surface(self.image)
+        self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
         self.rect = self.image.get_rect(center=self.pos)
 
-        
-
         for obstacle in obstacles:
-            if self.mask.overlap(obstacle.mask, (pg.Vector2(obstacle.rect.topleft) - self.rect.topleft)):
-                # bounce off obstacle
-                self.vel = -self.vel
-
-
-        self.mask = pg.mask.from_surface(self.image)
+            if point := self.mask.overlap(obstacle.mask, (pg.Vector2(obstacle.rect.topleft) - self.rect.topleft)):
+                temp = self.vel.magnitude()
+                self.vel = pg.Vector2(self.rect.topleft) + point - obstacle.pos
+                self.vel.normalize_ip()
+                self.vel *= temp * ASTEROID_BOUNCE
+                break
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the player to the screen."""
         screen.blit(self.image, self.rect.topleft + camera)
-        
-        # uncomment this to show the masks for the player
-
-        # self.mask = pg.mask.from_surface(self.image)
-        # mask_image = self.mask.to_surface()
-
-        # screen.blit(mask_image, self.rect.topleft + camera)
 
 
 class Obstacle:
     def __init__(self, pos: Sequence[float], image: pg.Surface):
-        self.pos = pg.Vector2(pos)
+        self.pos = pg.Vector2(pos)  # noqa
         self.rot_speed = random.randint(-MAX_ASTEROID_ROT_SPEED, MAX_ASTEROID_ROT_SPEED)
         self.base_image = image
         self.radius = self.base_image.get_width() // 2
@@ -99,6 +97,7 @@ class Obstacle:
         self.image = pg.transform.rotate(self.base_image, self.angle)
         self.rect = self.image.get_rect(center=self.pos)  # Used only for drawing.
         self.mask = pg.mask.from_surface(self.image)
+        self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
     def update(self, dt: float):
         """Update the obstacle.
@@ -108,15 +107,10 @@ class Obstacle:
         self.angle += self.rot_speed * dt
         self.angle %= 360
         self.image = pg.transform.rotate(self.base_image, self.angle)
+        self.mask = pg.mask.from_surface(self.image)
+        self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
         self.rect = self.image.get_rect(center=self.pos)
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the obstacle to the screen."""
         screen.blit(self.image, self.rect.topleft + camera)
-
-
-        # uncomment this to show the masks for the obstacles
-        # self.mask = pg.mask.from_surface(self.image)
-        # mask_image = self.mask.to_surface()
-
-        # screen.blit(mask_image, self.rect.topleft + camera)

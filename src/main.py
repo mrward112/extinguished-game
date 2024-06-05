@@ -107,17 +107,18 @@ def main() -> None:
     player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(IMAGE_DIRECTORY / "astro.png", alpha=True))
 
     # Load in the asteroid images.
-    asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True) for name in ASTEROID_IMAGE_FILENAMES}
+    # asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True)
+    #                    for name in ASTEROID_IMAGE_FILENAMES}
 
     # Create and place the obstacles for level 1.
-    obstacles = [sprites.Obstacle((300,250), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
-                 sprites.Obstacle((600,450), utils.load_image(IMAGE_DIRECTORY / "Asteroid_140.png", alpha=True)),
-                 sprites.Obstacle((250,900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
-                 sprites.Obstacle((750,550), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
-                 sprites.Obstacle((850,1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
-                 sprites.Obstacle((1400,900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_160.png", alpha=True)),
-                 sprites.Obstacle((1500,650), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
-                 sprites.Obstacle((1500,1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),]
+    obstacles = [sprites.Obstacle((300, 250), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
+                 sprites.Obstacle((600, 450), utils.load_image(IMAGE_DIRECTORY / "Asteroid_140.png", alpha=True)),
+                 sprites.Obstacle((250, 900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
+                 sprites.Obstacle((750, 550), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
+                 sprites.Obstacle((850, 1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
+                 sprites.Obstacle((1400, 900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_160.png", alpha=True)),
+                 sprites.Obstacle((1500, 650), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
+                 sprites.Obstacle((1500, 1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
@@ -131,7 +132,7 @@ def main() -> None:
     tank_image = utils.load_image(IMAGE_DIRECTORY / "tank_bar2.png", alpha=True)
     tank_fill_image = utils.load_image(IMAGE_DIRECTORY / "tank_fill.png", alpha=True)
     tank_fill_bg_image = pg.mask.from_surface(tank_fill_image).to_surface(setcolor=TANK_BG_COLOR,
-                                                                          unsetcolor=(0, 0, 0, 0)).convert_alpha()
+                                                                          unsetcolor=TRANS_BLACK).convert_alpha()
 
     # Enter the game loop.
     while True:
@@ -251,13 +252,15 @@ def main() -> None:
             obstacle.draw(screen, camera)
             # Draw the collision circles.
             if debug:
-                pg.draw.circle(screen, CYAN, obstacle.pos + camera, obstacle.radius, 1)
+                # pg.draw.circle(screen, CYAN, obstacle.pos + camera, obstacle.radius, 1)
+                screen.blit(obstacle.mask_image, obstacle.rect.topleft + camera)
 
         # Draw the player.
         player.draw(screen, camera)
         # Draw the hit box and player angle.
         if debug:
-            pg.draw.circle(screen, CYAN, player.pos + camera, player.radius, 1)
+            # pg.draw.circle(screen, CYAN, player.pos + camera, player.radius, 1)
+            screen.blit(player.mask_image, player.rect.topleft + camera)
             player_angle_offset = pg.Vector2()
             player_angle_offset.from_polar((30, player.angle))
             pg.draw.line(screen, RED, player.pos + camera, player.pos + player_angle_offset + camera, 3)

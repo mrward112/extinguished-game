@@ -52,7 +52,7 @@ def make_circle_image(radius: int, color: Sequence[int]) -> pg.Surface:
     The surface size is ``(radius*2,radius*2)``.
     """
     image = pg.Surface((radius * 2, radius * 2)).convert()
-    pg.draw.circle(image, color, (radius, radius), radius)
+    pg.draw.circle(image, color, (radius, radius), radius)  # noqa
     # Tell pygame to make BLACK pixels transparent when drawing to another surface.
     image.set_colorkey(BLACK)
     return image
@@ -95,8 +95,8 @@ class Particle:
 
 class SmokeParticle(Particle):
     def __init__(self, pos: Sequence[float], vel: Sequence[float], radius: int):
-        self.pos = pg.Vector2(pos)
-        self.vel = pg.Vector2(vel)
+        self.pos = pg.Vector2(pos)  # noqa
+        self.vel = pg.Vector2(vel)  # noqa
         self.radius = radius
         self.life_time = random.randint(1500, 2000)
         self.start_time = pg.time.get_ticks()
@@ -138,4 +138,4 @@ class ParticleGroup:
         return image, p.draw_pos(image) + camera
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2, blend: int = pg.BLENDMODE_NONE):
-        screen.fblits([self._get_draw_tuple(p, camera) for p in self.particles], blend if blend else self.blend)
+        screen.fblits([self._get_draw_tuple(p, camera) for p in self.particles], blend if blend else self.blend)  # noqa
