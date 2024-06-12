@@ -177,7 +177,8 @@ def main() -> None:
             # I can change this later to move the angle towards the mouse angle at the same speed as the keyboard.
             # This is based on the screen center, not the player position within the screen.
             if event.type == pg.MOUSEMOTION:
-                player.angle = pg.Vector2(0, 0).angle_to(pg.Vector2(pg.mouse.get_pos()) - SCREEN_SIZE // 2)
+                # player.angle = pg.Vector2(0, 0).angle_to(pg.mouse.get_pos() - (SCREEN_SIZE // 2))
+                player.rotate(pg.Vector2(0, 0).angle_to(pg.mouse.get_pos() - (SCREEN_SIZE // 2)), obstacles)
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Button 1 is the left mouse button.
@@ -198,14 +199,16 @@ def main() -> None:
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             # The user wants to rotate the player angle counterclockwise.
-            player.angle -= sprites.PLAYER_ROTATE_SPEED * dt
+            # player.angle -= sprites.PLAYER_ROTATE_SPEED * dt
             # Keep the player angle in the range of [0, 359].
-            player.angle %= 360
+            # player.angle %= 360
+            player.rotate(player.angle - sprites.PLAYER_ROTATE_SPEED * dt, obstacles)
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
             # The user wants to rotate the player angle clockwise.
-            player.angle += sprites.PLAYER_ROTATE_SPEED * dt
+            # player.angle += sprites.PLAYER_ROTATE_SPEED * dt
             # Keep the player angle in the range of [0, 359].
-            player.angle %= 360
+            # player.angle %= 360
+            player.rotate(player.angle + sprites.PLAYER_ROTATE_SPEED * dt, obstacles)
 
         # If the mouse is being held down, the angle should follow the mouse.
         # This causes the angle to snap to the mouse, making it a better option than keyboard.

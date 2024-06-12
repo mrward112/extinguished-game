@@ -17,7 +17,7 @@ PLAYER_PUSH_ACC = 300  # The acceleration that is applied to the player when the
 PLAYER_CIRCLE_RADIUS = 30  # The radius of the collision circle for the player.
 TANK_DECREASE = 5  # The speed the tank should decrease at per second.
 TANK_MAX = 100  # The maximum value of the tank.
-MAX_ASTEROID_ROT_SPEED = 50  # The maximum speed an asteroid can rotate at.
+MAX_ASTEROID_ROT_SPEED = 0  # The maximum speed an asteroid can rotate at.
 ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an asteroid.
 
 
@@ -74,12 +74,21 @@ class Player:
         self.rect = self.image.get_rect(center=self.pos)
 
         for obstacle in obstacles:
-            if point := self.mask.overlap(obstacle.mask, (pg.Vector2(obstacle.rect.topleft) - self.rect.topleft)):
+            if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.rect.topleft) - self.rect.topleft):
                 temp = self.vel.magnitude()
                 self.vel = pg.Vector2(self.rect.topleft) + point - obstacle.pos
                 self.vel.normalize_ip()
                 self.vel *= temp * ASTEROID_BOUNCE
                 break
+
+    def rotate(self, angle: float, obstacles: list["Obstacle"]):
+        """Set the player's angle to the given angle, or not if it would collide with an asteroid."""
+        test_mask = pg.mask.from_surface(pg.transform.rotate(self.base_image, -angle))
+        mask_top_left = test_mask.get_rect(center=self.pos).topleft
+        for obstacle in obstacles:
+            if test_mask.overlap(obstacle.mask, pg.Vector2(obstacle.rect.topleft) - mask_top_left):
+                return
+        self.angle = angle % 360
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the player to the screen."""
