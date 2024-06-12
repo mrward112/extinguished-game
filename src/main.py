@@ -10,7 +10,6 @@ import sys  # This module provides information about the system and enables us t
 from pathlib import Path  # This module allows object-oriented filesystem interaction.
 import random  # Random number generation.
 import functools  # Don't worry about this import. It's advanced.
-import webbrowser
 
 # Third-party library imports.
 # I am abbreviating `pygame` here to `pg` because it will be used a lot.
@@ -20,6 +19,7 @@ import pygame as pg
 # Local library imports.
 from colors import *
 import utils
+from utils import Effect
 import sprites
 
 
@@ -135,6 +135,22 @@ def main() -> None:
     tank_fill_bg_image = pg.mask.from_surface(tank_fill_image).to_surface(setcolor=TANK_BG_COLOR,
                                                                           unsetcolor=TRANS_BLACK).convert_alpha()
 
+# _______________Defined Items_______________ 
+
+    # Tank refill Item
+    refill_tank_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
+
+
+    # Create the object(s).
+    tank_refill = Effect(refill_tank_image, position=pg.Vector2(750, 1050)) ##WORKING MODEL
+
+
+
+    # tank_refill_pos = [(750, 1050), (750, 1050), (600, 200)]
+    # tank_refill_tems = [utils.Effect(refill_tank_image, pos, utils.max_fuel) for pos in tank_refill_pos]
+
+    # items = tank_refill_tems
+
     # Enter the game loop.
     while True:
         # Get the delta-time and fps.
@@ -168,9 +184,6 @@ def main() -> None:
                     # The user wants to use the extinguisher.
                     player.pushing = True
 
-                if event.key == pg.K_r:
-                    webbrowser.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUJcmljayByb2xs", new=2)
-
             if event.type == pg.KEYUP:
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to stop using the extinguisher.
@@ -181,8 +194,7 @@ def main() -> None:
             # I can change this later to move the angle towards the mouse angle at the same speed as the keyboard.
             # This is based on the screen center, not the player position within the screen.
             if event.type == pg.MOUSEMOTION:
-                # player.angle = pg.Vector2(0, 0).angle_to(pg.mouse.get_pos() - (SCREEN_SIZE // 2))
-                player.rotate(pg.Vector2(0, 0).angle_to(pg.mouse.get_pos() - (SCREEN_SIZE // 2)), obstacles)
+                player.angle = pg.Vector2(0, 0).angle_to(pg.Vector2(pg.mouse.get_pos()) - SCREEN_SIZE // 2)
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Button 1 is the left mouse button.
@@ -203,16 +215,14 @@ def main() -> None:
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             # The user wants to rotate the player angle counterclockwise.
-            # player.angle -= sprites.PLAYER_ROTATE_SPEED * dt
+            player.angle -= sprites.PLAYER_ROTATE_SPEED * dt
             # Keep the player angle in the range of [0, 359].
-            # player.angle %= 360
-            player.rotate(player.angle - sprites.PLAYER_ROTATE_SPEED * dt, obstacles)
+            player.angle %= 360
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
             # The user wants to rotate the player angle clockwise.
-            # player.angle += sprites.PLAYER_ROTATE_SPEED * dt
+            player.angle += sprites.PLAYER_ROTATE_SPEED * dt
             # Keep the player angle in the range of [0, 359].
-            # player.angle %= 360
-            player.rotate(player.angle + sprites.PLAYER_ROTATE_SPEED * dt, obstacles)
+            player.angle %= 360
 
         # If the mouse is being held down, the angle should follow the mouse.
         # This causes the angle to snap to the mouse, making it a better option than keyboard.
@@ -309,6 +319,29 @@ def main() -> None:
             # image is pasted from its upper-left corner. We shift the image up (by subtracting from the y) by its
             # height, so it is visible.
             screen.blit(fps_surf, (0, SCREEN_SIZE.y - fps_surf.get_height()))
+
+
+        # ______________DRAW ITEM(S)________________
+        # #collision logic (NOT WORKING/EXPERIMENT)
+        # for item in items:
+        #     if item.visible and player.rect.colliderect(item.rect):
+        #         item.apply_effect(player)
+        #         item.visible = False
+
+        # #Draw Item
+        # for item in items:
+        #     if item.visible:
+        #         item.draw(screen, camera)
+
+
+        # check for player collision with item WORKING MODEL
+        if tank_refill.visible and player.rect.colliderect(tank_refill.rect):
+            tank_level = sprites.TANK_MAX
+            tank_refill.visible = False
+
+        # Draw the item.
+        if tank_refill.visible:
+            tank_refill.draw(screen, camera)
 
         # Show the screen.
         # Nothing we just drew is visible yet, so we flip the surface buffers to update the screen.
