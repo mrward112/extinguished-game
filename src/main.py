@@ -10,6 +10,7 @@ import sys  # This module provides information about the system and enables us t
 from pathlib import Path  # This module allows object-oriented filesystem interaction.
 import random  # Random number generation.
 import functools  # Don't worry about this import. It's advanced.
+import webbrowser
 
 # Third-party library imports.
 # I am abbreviating `pygame` here to `pg` because it will be used a lot.
@@ -166,6 +167,9 @@ def main() -> None:
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to use the extinguisher.
                     player.pushing = True
+
+                if event.key == pg.K_r:
+                    webbrowser.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUJcmljayByb2xs", new=2)
 
             if event.type == pg.KEYUP:
                 if event.key in (pg.K_UP, pg.K_w):
