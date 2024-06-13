@@ -9,6 +9,7 @@
 import sys  # This module provides information about the system and enables us to terminate the program.
 from pathlib import Path  # This module allows object-oriented filesystem interaction.
 import random  # Random number generation.
+import math  # C-style math functions.
 import functools  # Don't worry about this import. It's advanced.
 
 # Third-party library imports.
@@ -19,15 +20,16 @@ import pygame as pg
 # Local library imports.
 from colors import *
 import utils
-from utils import Effect
 import sprites
 
 
 # Constants.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
 SCREEN_SIZE = pg.Vector2(800, 600)  # This is a Vector2 to enable easy mathematical operations later.
+
 APPLICATION_DIRECTORY = Path(__file__, "../..").resolve()  # This is the top level folder of the project.
 IMAGE_DIRECTORY = APPLICATION_DIRECTORY / "images"  # The path to the folder of images.
+
 ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
     "Asteroid_60.png",
     "Asteroid_100.png",
@@ -38,25 +40,24 @@ BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
 FUEL_LEVEL_TEXT_POS = pg.Vector2(32, 50)
 FUEL_LEVEL_IMAGE_POS = pg.Vector2(10, 25)
-FUEL_LEVEL_BAR_POS = FUEL_LEVEL_IMAGE_POS + (20, 15)
 
 
 # Draw extinguisher tank function.
-def draw_tank_bar(tank_level, screen):
-    """ Draw the tank level bar on the screen. """
-    bar_width = 200
-    bar_height = 30
-    bar_x = 10
-    bar_y = 30
-
-    # Draw the background of the bar (empty part)
-    pg.draw.rect(screen, RED, (bar_x, bar_y, bar_width, bar_height))
-
-    # Calculate the width of the filled part based on the tank level
-    fill_width = (tank_level / 100) * bar_width
-
-    # Draw the filled part of the bar
-    pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
+# def draw_tank_bar(tank_level, screen):
+#     """ Draw the tank level bar on the screen. """
+#     bar_width = 200
+#     bar_height = 30
+#     bar_x = 10
+#     bar_y = 30
+#
+#     # Draw the background of the bar (empty part)
+#     pg.draw.rect(screen, RED, (bar_x, bar_y, bar_width, bar_height))
+#
+#     # Calculate the width of the filled part based on the tank level
+#     fill_width = (tank_level / 100) * bar_width
+#
+#     # Draw the filled part of the bar
+#     pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
 
 
 # Helpful application functions.
@@ -106,20 +107,35 @@ def main() -> None:
     # Create the player object.
     # Center it in the middle of the screen.
     player = sprites.Player(SCREEN_SIZE // 2, utils.load_image(IMAGE_DIRECTORY / "astro.png", alpha=True))
+    player_angle_vector = pg.Vector2()  # Used for vector math to draw the player angle debug line.
+
+    # This variable helps track the movement events to swap between mouse and keyboard.
+    # Moving the mouse sets this to False, and pressing movement keys sets this to True.
+    # That way the player angle follows the mouse even when it is stationary until movement keys are pressed.
+    # When movement keys are pressed, the player ignores the mouse position until it moves.
+    using_keyboard = False
 
     # Load in the asteroid images.
-    # asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True)
-    #                    for name in ASTEROID_IMAGE_FILENAMES}
+    asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True)
+                       for name in ASTEROID_IMAGE_FILENAMES}
 
     # Create and place the obstacles for level 1.
-    obstacles = [sprites.Obstacle((300, 250), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
-                 sprites.Obstacle((600, 450), utils.load_image(IMAGE_DIRECTORY / "Asteroid_140.png", alpha=True)),
-                 sprites.Obstacle((250, 900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
-                 sprites.Obstacle((750, 550), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
-                 sprites.Obstacle((850, 1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),
-                 sprites.Obstacle((1400, 900), utils.load_image(IMAGE_DIRECTORY / "Asteroid_160.png", alpha=True)),
-                 sprites.Obstacle((1500, 650), utils.load_image(IMAGE_DIRECTORY / "Asteroid_60.png", alpha=True)),
-                 sprites.Obstacle((1500, 1050), utils.load_image(IMAGE_DIRECTORY / "Asteroid_100.png", alpha=True)),]
+    obstacles = [sprites.Obstacle((300, 250), asteroid_images["Asteroid_60.png"]),
+                 sprites.Obstacle((600, 450), asteroid_images["Asteroid_140.png"]),
+                 sprites.Obstacle((250, 900), asteroid_images["Asteroid_60.png"]),
+                 sprites.Obstacle((750, 550), asteroid_images["Asteroid_100.png"]),
+                 sprites.Obstacle((850, 1050), asteroid_images["Asteroid_100.png"]),
+                 sprites.Obstacle((1400, 900), asteroid_images["Asteroid_160.png"]),
+                 sprites.Obstacle((1500, 650), asteroid_images["Asteroid_60.png"]),
+                 sprites.Obstacle((1500, 1050), asteroid_images["Asteroid_100.png"]),
+                 ]
+
+    # Create and place the items for level 1.
+    # Reduce image loading by only loading the image once.
+    fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
+    items = [
+        sprites.Item((750, 1050), fuel_item_image),
+    ]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
@@ -134,22 +150,6 @@ def main() -> None:
     tank_fill_image = utils.load_image(IMAGE_DIRECTORY / "tank_fill.png", alpha=True)
     tank_fill_bg_image = pg.mask.from_surface(tank_fill_image).to_surface(setcolor=TANK_BG_COLOR,
                                                                           unsetcolor=TRANS_BLACK).convert_alpha()
-
-# _______________Defined Items_______________ 
-
-    # Tank refill Item
-    refill_tank_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
-
-
-    # Create the object(s).
-    tank_refill = Effect(refill_tank_image, position=pg.Vector2(750, 1050)) ##WORKING MODEL
-
-
-
-    # tank_refill_pos = [(750, 1050), (750, 1050), (600, 200)]
-    # tank_refill_tems = [utils.Effect(refill_tank_image, pos, utils.max_fuel) for pos in tank_refill_pos]
-
-    # items = tank_refill_tems
 
     # Enter the game loop.
     while True:
@@ -177,8 +177,6 @@ def main() -> None:
                     # The ESCAPE key should bring up a pause menu or something, but we don't have one.
                     # For the time being, we'll just terminate the application.
                     terminate()
-                    # Show the pause menu.
-                    pass
 
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to use the extinguisher.
@@ -189,12 +187,9 @@ def main() -> None:
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
 
-            # When the mouse moves, change the player angle.
-            # This causes the angle to snap to the mouse, making it a better option than keyboard.
-            # I can change this later to move the angle towards the mouse angle at the same speed as the keyboard.
-            # This is based on the screen center, not the player position within the screen.
             if event.type == pg.MOUSEMOTION:
-                player.angle = pg.Vector2(0, 0).angle_to(pg.Vector2(pg.mouse.get_pos()) - SCREEN_SIZE // 2)
+                # User wants to use the mouse to move the player.
+                using_keyboard = False
 
             if event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Button 1 is the left mouse button.
@@ -215,21 +210,27 @@ def main() -> None:
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
             # The user wants to rotate the player angle counterclockwise.
-            player.angle -= sprites.PLAYER_ROTATE_SPEED * dt
-            # Keep the player angle in the range of [0, 359].
-            player.angle %= 360
+            player.rotate(-sprites.PLAYER_ROTATE_SPEED * dt, obstacles)
+            # User wants to use the keyboard controls, not the mouse.
+            using_keyboard = True
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
             # The user wants to rotate the player angle clockwise.
-            player.angle += sprites.PLAYER_ROTATE_SPEED * dt
-            # Keep the player angle in the range of [0, 359].
-            player.angle %= 360
+            player.rotate(sprites.PLAYER_ROTATE_SPEED * dt, obstacles)
+            # User wants to use the keyboard controls, not the mouse.
+            using_keyboard = True
 
-        # If the mouse is being held down, the angle should follow the mouse.
-        # This causes the angle to snap to the mouse, making it a better option than keyboard.
-        # I can change this later to move the angle towards the mouse angle at the same speed as the keyboard.
-        # This is based on the screen center, not the player position within the screen.
-        if pg.mouse.get_pressed()[0]:
-            player.angle = pg.Vector2(0, 0).angle_to(pg.Vector2(pg.mouse.get_pos()) - SCREEN_SIZE // 2)
+        # Use the mouse to move the player angle.
+        if not using_keyboard:
+            # Get the desired angle.
+            # This is based on the screen center, not on the player position within the screen.
+            desired_angle = pg.Vector2().angle_to(pg.mouse.get_pos() - (SCREEN_SIZE // 2)) % 360
+            dist = desired_angle - player.angle  # One of the two modulo distances.
+            abs_dist = math.fabs(dist)  # Precalculate this value for later equations.
+            # If the shortest modulo distance is too small, don't rotate. This reduces jitter.
+            if min(abs_dist, 360 - abs_dist) > 1:  # If the mouse angle is further than <amount> degrees.
+                # Find the direction the player needs to rotate in to get to the mouse in the shortest distance.
+                direction = math.copysign(1, dist) if abs_dist < 360 - abs_dist else -math.copysign(1, dist)
+                player.rotate(sprites.PLAYER_ROTATE_SPEED * dt * direction, obstacles)
 
         # Update everything.
 
@@ -249,6 +250,15 @@ def main() -> None:
         # Update the player.
         player.update(dt, game_size, obstacles)
 
+        # Test for item collision.
+        for item in items[:]:  # Loop over a copy of the list because we will be removing items.
+            # Using squared distance is faster.
+            if item.pos.distance_squared_to(player.pos) < sprites.PLAYER_PICKUP_RANGE ** 2:
+                items.remove(item)  # De-spawn the item.
+                # Activate item effects.
+                if item.type is sprites.ItemType.FUEL:
+                    tank_level = sprites.TANK_MAX
+
         # Update the obstacles.
         for obstacle in obstacles:
             obstacle.update(dt)
@@ -260,7 +270,9 @@ def main() -> None:
         camera = pg.Vector2(SCREEN_SIZE) // 2 - player.pos
 
         # Draw everything to the screen.
-        screen.blit(background_image, (0, 0))  # Clear the screen completely by pasting the background image.
+
+        # Clear the screen completely by pasting the background image.
+        screen.blit(background_image, (0, 0))
 
         # Draw the obstacles.
         # There are faster and more efficient ways to create and draw the obstacle images,
@@ -272,15 +284,19 @@ def main() -> None:
                 # pg.draw.circle(screen, CYAN, obstacle.pos + camera, obstacle.radius, 1)
                 screen.blit(obstacle.mask_image, obstacle.rect.topleft + camera)
 
+        # Draw each of the items.
+        for item in items:
+            item.draw(screen, camera)
+
         # Draw the player.
         player.draw(screen, camera)
         # Draw the hit box and player angle.
         if debug:
             # pg.draw.circle(screen, CYAN, player.pos + camera, player.radius, 1)
             screen.blit(player.mask_image, player.rect.topleft + camera)
-            player_angle_offset = pg.Vector2()
-            player_angle_offset.from_polar((30, player.angle))
-            pg.draw.line(screen, RED, player.pos + camera, player.pos + player_angle_offset + camera, 3)
+            pg.draw.circle(screen, RED, player.pos + camera, sprites.PLAYER_PICKUP_RANGE, 1)
+            player_angle_vector.from_polar((30, player.angle))
+            pg.draw.line(screen, RED, player.pos + camera, player.pos + player_angle_vector + camera, 3)
 
         # Draw the particles.
         smoke_particles.draw(screen, camera)
@@ -319,29 +335,6 @@ def main() -> None:
             # image is pasted from its upper-left corner. We shift the image up (by subtracting from the y) by its
             # height, so it is visible.
             screen.blit(fps_surf, (0, SCREEN_SIZE.y - fps_surf.get_height()))
-
-
-        # ______________DRAW ITEM(S)________________
-        # #collision logic (NOT WORKING/EXPERIMENT)
-        # for item in items:
-        #     if item.visible and player.rect.colliderect(item.rect):
-        #         item.apply_effect(player)
-        #         item.visible = False
-
-        # #Draw Item
-        # for item in items:
-        #     if item.visible:
-        #         item.draw(screen, camera)
-
-
-        # check for player collision with item WORKING MODEL
-        if tank_refill.visible and player.rect.colliderect(tank_refill.rect):
-            tank_level = sprites.TANK_MAX
-            tank_refill.visible = False
-
-        # Draw the item.
-        if tank_refill.visible:
-            tank_refill.draw(screen, camera)
 
         # Show the screen.
         # Nothing we just drew is visible yet, so we flip the surface buffers to update the screen.

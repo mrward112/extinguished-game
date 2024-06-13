@@ -3,6 +3,7 @@
 # Standard library imports.
 import random
 from typing import Sequence
+from enum import Enum, auto
 
 # Third-party library imports.
 import pygame as pg
@@ -15,10 +16,21 @@ from colors import *
 PLAYER_ROTATE_SPEED = 300  # The speed the keyboard can rotate the player angle.
 PLAYER_PUSH_ACC = 300  # The acceleration that is applied to the player when the extinguisher is active.
 PLAYER_CIRCLE_RADIUS = 30  # The radius of the collision circle for the player.
+PLAYER_PICKUP_RANGE = 40  # The radius which will collide with item objects.
+
 TANK_DECREASE = 5  # The speed the tank should decrease at per second.
 TANK_MAX = 100  # The maximum value of the tank.
+
 MAX_ASTEROID_ROT_SPEED = 0  # The maximum speed an asteroid can rotate at.
 ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an asteroid.
+
+
+# Item type enumeration.
+# To add new item types just add in another variable with a value of auto().
+# ``variable is ItemType.Thing``
+# to test if variable is a Thing.
+class ItemType(Enum):
+    FUEL = auto()
 
 
 class Player:
@@ -73,12 +85,10 @@ class Player:
         self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
         self.rect = self.image.get_rect(center=self.pos)
 
+        # Collide with obstacles.
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.rect.topleft) - self.rect.topleft):
-                temp = self.vel.magnitude()
-                self.vel = pg.Vector2(self.rect.topleft) + point - obstacle.pos
-                self.vel.normalize_ip()
-                self.vel *= temp * ASTEROID_BOUNCE
+                self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
                 break
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
@@ -88,7 +98,8 @@ class Player:
         for obstacle in obstacles:
             if test_mask.overlap(obstacle.mask, pg.Vector2(obstacle.rect.topleft) - mask_top_left):
                 return
-        self.angle = angle % 360
+        self.angle += angle
+        self.angle %= 360
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the player to the screen."""
@@ -122,4 +133,17 @@ class Obstacle:
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the obstacle to the screen."""
+        screen.blit(self.image, self.rect.topleft + camera)
+
+
+class Item:
+    """Basic Item class, just a container with a position, image, and item type."""
+    def __init__(self, pos: Sequence[float], image: pg.Surface, item_type: ItemType = ItemType.FUEL):
+        self.type = item_type
+        self.pos = pg.Vector2(pos)  # noqa
+        self.image = image
+        self.rect = self.image.get_rect(center=pos)
+
+    def draw(self, screen: pg.Surface, camera: pg.Vector2):
+        """Draw the item to the screen."""
         screen.blit(self.image, self.rect.topleft + camera)

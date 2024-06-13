@@ -139,17 +139,3 @@ class ParticleGroup:
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2, blend: int = pg.BLENDMODE_NONE):
         screen.fblits([self._get_draw_tuple(p, camera) for p in self.particles], blend if blend else self.blend)  # noqa
-    
-    
-    #__________ITEMS LOGIC____________ 
-
-class Effect():
-    def __init__(self, image, position):
-        super().__init__()
-        self.image = image
-        self.rect = self.image.get_rect(center=position)
-        self.visible = True
-
-    def draw(self, screen, camera):
-        if self.visible:
-            screen.blit(self.image, self.rect.topleft + camera)
