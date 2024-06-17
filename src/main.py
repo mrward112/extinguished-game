@@ -135,6 +135,7 @@ def main() -> None:
     fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
     items = [
         sprites.Item((750, 1050), fuel_item_image),
+        #comment
     ]
 
     # I'm creating a ParticleGroup here.
