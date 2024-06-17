@@ -282,7 +282,7 @@ def main() -> None:
             # Draw the collision circles.
             if debug:
                 # pg.draw.circle(screen, CYAN, obstacle.pos + camera, obstacle.radius, 1)
-                screen.blit(obstacle.mask_image, obstacle.rect.topleft + camera)
+                screen.blit(obstacle.mask_image, obstacle.mask_rect.topleft + camera)
 
         # Draw each of the items.
         for item in items:

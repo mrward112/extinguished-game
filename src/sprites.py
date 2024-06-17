@@ -10,6 +10,7 @@ import pygame as pg
 
 # Local library imports.
 from colors import *
+import utils
 
 
 # Constants
@@ -21,7 +22,7 @@ PLAYER_PICKUP_RANGE = 40  # The radius which will collide with item objects.
 TANK_DECREASE = 5  # The speed the tank should decrease at per second.
 TANK_MAX = 100  # The maximum value of the tank.
 
-MAX_ASTEROID_ROT_SPEED = 0  # The maximum speed an asteroid can rotate at.
+MAX_ASTEROID_ROT_SPEED = 20  # The maximum speed an asteroid can rotate at.
 ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an asteroid.
 
 
@@ -87,7 +88,7 @@ class Player:
 
         # Collide with obstacles.
         for obstacle in obstacles:
-            if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.rect.topleft) - self.rect.topleft):
+            if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
                 break
 
@@ -96,7 +97,7 @@ class Player:
         test_mask = pg.mask.from_surface(pg.transform.rotate(self.base_image, -angle))
         mask_top_left = test_mask.get_rect(center=self.pos).topleft
         for obstacle in obstacles:
-            if test_mask.overlap(obstacle.mask, pg.Vector2(obstacle.rect.topleft) - mask_top_left):
+            if test_mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - mask_top_left):
                 return
         self.angle += angle
         self.angle %= 360
@@ -116,8 +117,11 @@ class Obstacle:
         self.angle = random.randrange(360)
         self.image = pg.transform.rotate(self.base_image, self.angle)
         self.rect = self.image.get_rect(center=self.pos)  # Used only for drawing.
-        self.mask = pg.mask.from_surface(self.image)
-        self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
+        self.mask_image = utils.make_circle_image(image.get_width() // 2, CYAN)
+        self.mask = pg.mask.from_surface(self.mask_image)
+        self.mask_rect = self.mask.get_rect(center=self.pos)  # For drawing and collision detection.
+        # self.mask = pg.mask.from_surface(self.image)
+        # self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
     def update(self, dt: float):
         """Update the obstacle.
@@ -127,9 +131,9 @@ class Obstacle:
         self.angle += self.rot_speed * dt
         self.angle %= 360
         self.image = pg.transform.rotate(self.base_image, self.angle)
-        self.mask = pg.mask.from_surface(self.image)
-        self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
         self.rect = self.image.get_rect(center=self.pos)
+        # self.mask = pg.mask.from_surface(self.image)
+        # self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the obstacle to the screen."""

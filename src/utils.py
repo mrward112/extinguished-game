@@ -51,7 +51,7 @@ def make_circle_image(radius: int, color: Sequence[int]) -> pg.Surface:
 
     The surface size is ``(radius*2,radius*2)``.
     """
-    image = pg.Surface((radius * 2, radius * 2)).convert()
+    image = pg.Surface((radius * 2, radius * 2))
     pg.draw.circle(image, color, (radius, radius), radius)  # noqa
     # Tell pygame to make BLACK pixels transparent when drawing to another surface.
     image.set_colorkey(BLACK)
