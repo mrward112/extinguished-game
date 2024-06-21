@@ -32,6 +32,7 @@ ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an as
 # to test if variable is a Thing.
 class ItemType(Enum):
     FUEL = auto()
+    EXIT = auto()
 
 
 class Player:

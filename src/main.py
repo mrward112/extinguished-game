@@ -133,8 +133,11 @@ def main() -> None:
     # Create and place the items for level 1.
     # Reduce image loading by only loading the image once.
     fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
+    exit_image = utils.load_image(IMAGE_DIRECTORY/ "Portal.png", alpha=True)
+
     items = [
         sprites.Item((750, 1050), fuel_item_image),
+        sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
         #comment
     ]
 
@@ -259,6 +262,9 @@ def main() -> None:
                 # Activate item effects.
                 if item.type is sprites.ItemType.FUEL:
                     tank_level = sprites.TANK_MAX
+                
+                if item.type is sprites.ItemType.EXIT:
+                    terminate()
 
         # Update the obstacles.
         for obstacle in obstacles:
