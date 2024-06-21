@@ -138,13 +138,16 @@ def main() -> None:
     items = [
         sprites.Item((750, 1050), fuel_item_image),
         sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
-        #comment
     ]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
+    portal_dust_image = utils.load_image(IMAGE_DIRECTORY / "Portal Dust.png", alpha=True)
+    portal_particles = utils.ParticleGroup(utils.ImageCache(lambda _: portal_dust_image))
+
+    portal_dust_spawn_timer = utils.Timer(100)
 
     # Starting tank level.
     tank_level = sprites.TANK_MAX
@@ -270,8 +273,17 @@ def main() -> None:
         for obstacle in obstacles:
             obstacle.update(dt)
 
+        # Spawn portal dust.
+        if portal_dust_spawn_timer.tick():
+            for item in items:
+                if item.type is sprites.ItemType.EXIT:
+                    spawn_pos = pg.Vector2()
+                    spawn_pos.from_polar((random.randint(50, 100), random.randrange(360)))
+                    portal_particles.add(utils.PortalParticle(item.pos + spawn_pos, item.pos))
+
         # Update the particles.
         smoke_particles.update(dt)
+        portal_particles.update(dt)
 
         # Update the camera.
         camera = pg.Vector2(SCREEN_SIZE) // 2 - player.pos
@@ -307,6 +319,7 @@ def main() -> None:
 
         # Draw the particles.
         smoke_particles.draw(screen, camera)
+        portal_particles.draw(screen, camera)
 
         # The game boundaries.
         pg.draw.rect(screen, GAME_BORDER, (*camera, *game_size), 10)

@@ -142,7 +142,7 @@ class Obstacle:
 
 
 class Item:
-    # Basic Item class, just a container with a position, image, and item type.
+    """Basic Item class, just a container with a position, image, and item type."""
     def __init__(self, pos: Sequence[float], image: pg.Surface, item_type: ItemType = ItemType.FUEL):
         self.type = item_type
         self.pos = pg.Vector2(pos)  # noqa

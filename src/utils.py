@@ -73,7 +73,7 @@ class Timer:
 
         If no interval is given to ``tick``, it uses the interval passed into the class constructor.
         """
-        if pg.time.get_ticks() - self.last_tick >= interval if interval is not None else self.interval:
+        if pg.time.get_ticks() - self.last_tick >= (self.interval if interval is None else interval):
             self.last_tick = pg.time.get_ticks()
             return True
         return False
