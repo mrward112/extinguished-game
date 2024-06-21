@@ -58,6 +58,27 @@ def make_circle_image(radius: int, color: Sequence[int]) -> pg.Surface:
     return image
 
 
+class Timer:
+    """A utility class for checking when certain time periods have passed."""
+    def __init__(self, interval: float = 0, start: int = 0):
+        """The interval is the length of time in milliseconds.
+
+        An optional start value gives the timer a starting point in milliseconds.
+        """
+        self.interval = interval
+        self.last_tick = start
+
+    def tick(self, interval: Optional[float] = None) -> bool:
+        """Return a bool indicating if the time period specified by ``interval`` has passed.
+
+        If no interval is given to ``tick``, it uses the interval passed into the class constructor.
+        """
+        if pg.time.get_ticks() - self.last_tick >= interval if interval is not None else self.interval:
+            self.last_tick = pg.time.get_ticks()
+            return True
+        return False
+
+
 # Don't worry about understanding these classes.
 # I use them for high-performance particle systems.
 class ImageCache:
@@ -112,6 +133,24 @@ class SmokeParticle(Particle):
 
     def cache_lookup(self) -> Hashable:
         return self.radius
+
+
+class PortalParticle(Particle):
+    def __init__(self, pos: Sequence[float], target: Sequence[float], speed: int = 20):
+        self.pos = pg.Vector2(pos)  # noqa
+        self.target_pos = pg.Vector2(target)  # noqa
+        self.target_vector = pg.Vector2(target - self.pos)  # noqa
+        self.target_vector.scale_to_length(speed)
+
+    def update(self, dt: float, *args, **kwargs) -> bool:
+        self.pos += self.target_vector * dt
+        return self.pos.distance_squared_to(self.target_pos) > 20
+
+    def draw_pos(self, image: pg.Surface) -> Sequence[float]:
+        return self.pos - image.get_size()
+
+    def cache_lookup(self) -> Hashable:
+        return 1
 
 
 class ParticleGroup:

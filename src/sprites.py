@@ -145,7 +145,7 @@ class Item:
     """Basic Item class, just a container with a position, image, and item type."""
     def __init__(self, pos: Sequence[float], image: pg.Surface, item_type: ItemType = ItemType.FUEL):
         self.type = item_type
-        self.pos = pg.Vector2(pos)  
+        self.pos = pg.Vector2(pos)  # noqa
         self.image = image
         self.rect = self.image.get_rect(center=pos)
 
