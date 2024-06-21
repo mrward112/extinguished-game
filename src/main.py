@@ -273,6 +273,10 @@ def main() -> None:
         for obstacle in obstacles:
             obstacle.update(dt)
 
+        # Update the items.
+        for item in items:
+            item.update(dt)
+
         # Spawn portal dust.
         if portal_dust_spawn_timer.tick():
             for item in items:
