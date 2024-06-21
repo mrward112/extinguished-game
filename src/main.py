@@ -11,7 +11,6 @@ from pathlib import Path  # This module allows object-oriented filesystem intera
 import random  # Random number generation.
 import math  # C-style math functions.
 import functools  # Don't worry about this import. It's advanced.
-import webbrowser
 
 # Third-party library imports.
 # I am abbreviating `pygame` here to `pg` because it will be used a lot.
@@ -71,10 +70,6 @@ def terminate() -> None:
     pg.quit()
     # Terminate python execution.
     sys.exit()
-
-
-def rick_roll():
-    webbrowser.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUJcmljayByb2xs", new=2)
 
 
 def main() -> None:
@@ -138,21 +133,18 @@ def main() -> None:
     # Create and place the items for level 1.
     # Reduce image loading by only loading the image once.
     fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
-    exit_image = utils.load_image(IMAGE_DIRECTORY / "Portal.png", alpha=True)
+    exit_image = utils.load_image(IMAGE_DIRECTORY/ "Portal.png", alpha=True)
 
     items = [
         sprites.Item((750, 1050), fuel_item_image),
-        sprites.Item((1450, 300), exit_image, sprites.ItemType.EXIT)
+        sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
+        #comment
     ]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
-    portal_particle_image = utils.load_image(IMAGE_DIRECTORY / "Portal Dust.png", alpha=True)
-    portal_particles = utils.ParticleGroup(utils.ImageCache(lambda _: portal_particle_image))
-
-    portal_dust_timer = utils.Timer(1000)
 
     # Starting tank level.
     tank_level = sprites.TANK_MAX
@@ -184,9 +176,6 @@ def main() -> None:
                 # Toggle debug mode.
                 if event.key == pg.K_F3:
                     debug = not debug
-
-                if event.key == pg.K_r:
-                    rick_roll()
 
                 if event.key == pg.K_ESCAPE:
                     # The ESCAPE key should bring up a pause menu or something, but we don't have one.
@@ -275,23 +264,14 @@ def main() -> None:
                     tank_level = sprites.TANK_MAX
                 
                 if item.type is sprites.ItemType.EXIT:
-                    rick_roll()
                     terminate()
 
         # Update the obstacles.
         for obstacle in obstacles:
             obstacle.update(dt)
 
-        # Spawn the portal dust particles.
-        if portal_dust_timer.tick():
-            for item in items:
-                if item.type is sprites.ItemType.EXIT:
-                    spawn_pos = item.pos + (random.randint(-100, 100), random.randint(-100, 100))
-                    portal_particles.add(utils.PortalParticle(spawn_pos, item.pos))
-
         # Update the particles.
         smoke_particles.update(dt)
-        portal_particles.update(dt)
 
         # Update the camera.
         camera = pg.Vector2(SCREEN_SIZE) // 2 - player.pos
@@ -327,7 +307,6 @@ def main() -> None:
 
         # Draw the particles.
         smoke_particles.draw(screen, camera)
-        portal_particles.draw(screen, camera)
 
         # The game boundaries.
         pg.draw.rect(screen, GAME_BORDER, (*camera, *game_size), 10)
