@@ -138,7 +138,7 @@ def main() -> None:
     items = [
         sprites.Item((750, 1050), fuel_item_image),
         sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
-        #comment
+        
     ]
 
     # I'm creating a ParticleGroup here.
