@@ -22,6 +22,11 @@ from colors import *
 import utils
 import sprites
 
+#initializing the mixer for sound
+pg.mixer.init()
+sound_folder = 'sounds'
+fire_extinguisher = pg.mixer.Sound(f'{sound_folder}/fire-extinguisher-sound-effect.wav')
+hit_sound = pg.mixer.Sound(f'{sound_folder}/mixkit-boxer-getting-hit-2055.wav')
 
 # Constants.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
@@ -188,11 +193,13 @@ def main() -> None:
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to use the extinguisher.
                     player.pushing = True
+                    fire_extinguisher.play()
 
             if event.type == pg.KEYUP:
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
+                    fire_extinguisher.stop()
 
             if event.type == pg.MOUSEMOTION:
                 # User wants to use the mouse to move the player.
@@ -202,11 +209,13 @@ def main() -> None:
                 if event.button == 1:  # Button 1 is the left mouse button.
                     # The user wants to use the extinguisher.
                     player.pushing = True
+                    fire_extinguisher.play()
 
             if event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:  # Button 1 is the left mouse button.
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
+                    fire_extinguisher.stop()
 
         # This is another way of handling events.
         # Choosing this method over the other depends on your use case.

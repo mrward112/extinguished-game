@@ -12,6 +12,10 @@ import pygame as pg
 from colors import *
 import utils
 
+#sounds
+pg.mixer.init()
+sound_folder = 'sounds'
+hit_sound = pg.mixer.Sound(f'{sound_folder}/mixkit-boxer-getting-hit-2055.wav')
 
 # Constants
 PLAYER_ROTATE_SPEED = 300  # The speed the keyboard can rotate the player angle.
@@ -92,6 +96,7 @@ class Player:
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
+                hit_sound.play()
                 break
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
