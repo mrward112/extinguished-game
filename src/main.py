@@ -46,25 +46,6 @@ BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 FUEL_LEVEL_TEXT_POS = pg.Vector2(32, 50)
 FUEL_LEVEL_IMAGE_POS = pg.Vector2(10, 25)
 
-
-# Draw extinguisher tank function.
-# def draw_tank_bar(tank_level, screen):
-#     """ Draw the tank level bar on the screen. """
-#     bar_width = 200
-#     bar_height = 30
-#     bar_x = 10
-#     bar_y = 30
-#
-#     # Draw the background of the bar (empty part)
-#     pg.draw.rect(screen, RED, (bar_x, bar_y, bar_width, bar_height))
-#
-#     # Calculate the width of the filled part based on the tank level
-#     fill_width = (tank_level / 100) * bar_width
-#
-#     # Draw the filled part of the bar
-#     pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
-
-
 # Helpful application functions.
 def terminate() -> None:
     """Terminate the application safely.
