@@ -92,7 +92,7 @@ class Player:
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
-                return True
+                return True  # Indicate a hit sound is to be played.
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
         """Set the player's angle to the given angle, or not if it would collide with an asteroid."""

@@ -263,7 +263,7 @@ def main() -> None:
             vel_vector.from_polar((random.randint(150, 200), (player.angle + random.randint(-20, 20) % 360)))
             smoke_particles.add(utils.SmokeParticle(player.pos, vel_vector + player.vel, random.randint(3, 5)))
 
-        # Update the player.
+        # Update the player, playing hit sound if needed.
         if player.update(dt, game_size, obstacles):
             hit_sound.play()
 
