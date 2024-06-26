@@ -12,11 +12,6 @@ import pygame as pg
 from colors import *
 import utils
 
-#sounds
-pg.mixer.init()
-sound_folder = 'sounds'
-hit_sound = pg.mixer.Sound(f'{sound_folder}/mixkit-boxer-getting-hit-2055.wav')
-
 # Constants
 PLAYER_ROTATE_SPEED = 300  # The speed the keyboard can rotate the player angle.
 PLAYER_PUSH_ACC = 300  # The acceleration that is applied to the player when the extinguisher is active.
@@ -57,10 +52,11 @@ class Player:
         self.mask = pg.mask.from_surface(self.image)
         self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
-    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]):
+    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]) -> bool:
         """Update the player.
 
         This function handles movement, collision detection, etc.
+        It returns a bool indicating a collision with an asteroid.
         """
         # Update the acceleration if the extinguisher is active.
         if self.pushing:
@@ -96,8 +92,7 @@ class Player:
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
-                hit_sound.play()
-                break
+                return True
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
         """Set the player's angle to the given angle, or not if it would collide with an asteroid."""
