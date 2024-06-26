@@ -2,6 +2,7 @@
 # This file holds various game objects like the player, obstacles, and items.
 # Standard library imports.
 import random
+import math
 from typing import Sequence
 from enum import Enum, auto
 
@@ -11,11 +12,6 @@ import pygame as pg
 # Local library imports.
 from colors import *
 import utils
-
-#sounds
-pg.mixer.init()
-sound_folder = 'sounds'
-hit_sound = pg.mixer.Sound(f'{sound_folder}/mixkit-boxer-getting-hit-2055.wav')
 
 # Constants
 PLAYER_ROTATE_SPEED = 300  # The speed the keyboard can rotate the player angle.
@@ -57,10 +53,11 @@ class Player:
         self.mask = pg.mask.from_surface(self.image)
         self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
-    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]):
+    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]) -> bool:
         """Update the player.
 
         This function handles movement, collision detection, etc.
+        It returns a bool indicating a collision with an asteroid.
         """
         # Update the acceleration if the extinguisher is active.
         if self.pushing:
@@ -96,8 +93,27 @@ class Player:
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
-                hit_sound.play()
-                break
+                return True  # Indicate a hit sound is to be played.
+
+        # this portion of the code will handle the gravity of the asteroids
+
+        for obstacle in obstacles:
+            # the amount of acceleration towards the planet
+            accel = 70
+
+            dx = obstacle.pos.x - self.pos.x
+            dy = obstacle.pos.y - self.pos.y
+            distance = math.sqrt(dx ** 2 + dy ** 2)
+            direction_x = 0
+            direction_y = 0
+
+            if distance != 0 and distance > 80:
+                direction_x = dx / distance
+                direction_y = dy / distance
+
+            self.pos.x += direction_x * accel * dt
+            self.pos.y += direction_y * accel * dt
+
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
         """Set the player's angle to the given angle, or not if it would collide with an asteroid."""
