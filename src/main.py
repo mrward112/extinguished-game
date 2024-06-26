@@ -22,13 +22,13 @@ from colors import *
 import utils
 import sprites
 
-
 # Constants.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
 SCREEN_SIZE = pg.Vector2(800, 600)  # This is a Vector2 to enable easy mathematical operations later.
 
 APPLICATION_DIRECTORY = Path(__file__, "../..").resolve()  # This is the top level folder of the project.
 IMAGE_DIRECTORY = APPLICATION_DIRECTORY / "images"  # The path to the folder of images.
+SOUND_DIRECTORY = APPLICATION_DIRECTORY / "sounds"  # The path to the folder of sounds and music.
 
 ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
     "Asteroid_60.png",
@@ -76,6 +76,11 @@ def main() -> None:
     """This is the main application code."""
     # Pygame must be initialized before anything can be done with it.
     pg.init()
+    pg.mixer.init()
+
+    # Load in the sounds and music.
+    hit_sound = pg.mixer.Sound(SOUND_DIRECTORY / "mixkit-boxer-getting-hit-2055.wav")
+    fire_extinguisher_sound = pg.mixer.Sound(SOUND_DIRECTORY / "fire-extinguisher-sound-effect.wav")
 
     # Set the title of the window.
     # Should be called before creating the screen for best system compatibility.
@@ -138,13 +143,16 @@ def main() -> None:
     items = [
         sprites.Item((750, 1050), fuel_item_image),
         sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
-        #comment
     ]
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
     make_smoke_circle_image = functools.partial(utils.make_circle_image, color=SMOKE)
     smoke_particles = utils.ParticleGroup(utils.ImageCache(make_smoke_circle_image), pg.BLEND_ADD)
+    portal_dust_image = utils.load_image(IMAGE_DIRECTORY / "Portal Dust.png", alpha=True)
+    portal_particles = utils.ParticleGroup(utils.ImageCache(lambda _: portal_dust_image))
+
+    portal_dust_spawn_timer = utils.Timer(100)
 
     # Starting tank level.
     tank_level = sprites.TANK_MAX
@@ -185,11 +193,13 @@ def main() -> None:
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to use the extinguisher.
                     player.pushing = True
+                    fire_extinguisher_sound.play()
 
             if event.type == pg.KEYUP:
                 if event.key in (pg.K_UP, pg.K_w):
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
+                    fire_extinguisher_sound.stop()
 
             if event.type == pg.MOUSEMOTION:
                 # User wants to use the mouse to move the player.
@@ -199,11 +209,13 @@ def main() -> None:
                 if event.button == 1:  # Button 1 is the left mouse button.
                     # The user wants to use the extinguisher.
                     player.pushing = True
+                    fire_extinguisher_sound.play()
 
             if event.type == pg.MOUSEBUTTONUP:
                 if event.button == 1:  # Button 1 is the left mouse button.
                     # The user wants to stop using the extinguisher.
                     player.pushing = False
+                    fire_extinguisher_sound.stop()
 
         # This is another way of handling events.
         # Choosing this method over the other depends on your use case.
@@ -251,8 +263,9 @@ def main() -> None:
             vel_vector.from_polar((random.randint(150, 200), (player.angle + random.randint(-20, 20) % 360)))
             smoke_particles.add(utils.SmokeParticle(player.pos, vel_vector + player.vel, random.randint(3, 5)))
 
-        # Update the player.
-        player.update(dt, game_size, obstacles)
+        # Update the player, playing hit sound if needed.
+        if player.update(dt, game_size, obstacles):
+            hit_sound.play()
 
         # Test for item collision.
         for item in items[:]:  # Loop over a copy of the list because we will be removing items.
@@ -270,8 +283,21 @@ def main() -> None:
         for obstacle in obstacles:
             obstacle.update(dt)
 
+        # Update the items.
+        for item in items:
+            item.update(dt)
+
+        # Spawn portal dust.
+        if portal_dust_spawn_timer.tick():
+            for item in items:
+                if item.type is sprites.ItemType.EXIT:
+                    spawn_pos = pg.Vector2()
+                    spawn_pos.from_polar((random.randint(50, 100), random.randrange(360)))
+                    portal_particles.add(utils.PortalParticle(item.pos + spawn_pos, item.pos))
+
         # Update the particles.
         smoke_particles.update(dt)
+        portal_particles.update(dt)
 
         # Update the camera.
         camera = pg.Vector2(SCREEN_SIZE) // 2 - player.pos
@@ -307,6 +333,7 @@ def main() -> None:
 
         # Draw the particles.
         smoke_particles.draw(screen, camera)
+        portal_particles.draw(screen, camera)
 
         # The game boundaries.
         pg.draw.rect(screen, GAME_BORDER, (*camera, *game_size), 10)

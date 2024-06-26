@@ -16,6 +16,7 @@ BLUE = Color(0, 0, 255)
 CYAN = Color(0, 255, 255)
 MAGENTA = Color(255, 0, 255)
 YELLOW = Color(255, 255, 0)
+BROWN = Color(128, 64, 0)
 
 GAME_BORDER = Color(85, 85, 85)
 SMOKE = Color(40, 40, 40)

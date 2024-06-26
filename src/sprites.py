@@ -13,7 +13,6 @@ import pygame as pg
 from colors import *
 import utils
 
-
 # Constants
 PLAYER_ROTATE_SPEED = 300  # The speed the keyboard can rotate the player angle.
 PLAYER_PUSH_ACC = 300  # The acceleration that is applied to the player when the extinguisher is active.
@@ -22,6 +21,7 @@ PLAYER_PICKUP_RANGE = 40  # The radius which will collide with item objects.
 
 TANK_DECREASE = 5  # The speed the tank should decrease at per second.
 TANK_MAX = 100  # The maximum value of the tank.
+PORTAL_ROTATE_SPEED = 100  # The speed the portal rotates at.
 
 MAX_ASTEROID_ROT_SPEED = 20  # The maximum speed an asteroid can rotate at.
 ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an asteroid.
@@ -53,10 +53,11 @@ class Player:
         self.mask = pg.mask.from_surface(self.image)
         self.mask_image = self.mask.to_surface(setcolor=CYAN, unsetcolor=TRANS_BLACK)
 
-    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]):
+    def update(self, dt: float, game_bounds: pg.Vector2, obstacles: list["Obstacle"]) -> bool:
         """Update the player.
 
         This function handles movement, collision detection, etc.
+        It returns a bool indicating a collision with an asteroid.
         """
         # Update the acceleration if the extinguisher is active.
         if self.pushing:
@@ -92,7 +93,7 @@ class Player:
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
-                break
+                return True  # Indicate a hit sound is to be played.
 
         # this portion of the code will handle the gravity of the asteroids
 
@@ -166,9 +167,23 @@ class Item:
     """Basic Item class, just a container with a position, image, and item type."""
     def __init__(self, pos: Sequence[float], image: pg.Surface, item_type: ItemType = ItemType.FUEL):
         self.type = item_type
-        self.pos = pg.Vector2(pos)  
+        self.pos = pg.Vector2(pos)  # noqa
+        self.base_image = image
         self.image = image
         self.rect = self.image.get_rect(center=pos)
+        self.angle = 0
+        self.rot_speed = PORTAL_ROTATE_SPEED if random.random() > 0.5 else -PORTAL_ROTATE_SPEED
+
+    def update(self, dt: float):
+        """Update the item. Currently only used for rotating the exit portal."""
+        # Don't update if not the exit portal.
+        if self.type is not ItemType.EXIT:
+            return
+        # Rotate the image and update the rect.
+        self.angle += self.rot_speed * dt
+        self.angle %= 360
+        self.image = pg.transform.rotate(self.base_image, self.angle)
+        self.rect = self.image.get_rect(center=self.pos)
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the item to the screen."""
