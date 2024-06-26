@@ -2,6 +2,7 @@
 # This file holds various game objects like the player, obstacles, and items.
 # Standard library imports.
 import random
+import math
 from typing import Sequence
 from enum import Enum, auto
 
@@ -92,6 +93,26 @@ class Player:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
                 self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
                 break
+
+        # this portion of the code will handle the gravity of the asteroids
+
+        for obstacle in obstacles:
+            # the amount of acceleration towards the planet
+            accel = 70
+
+            dx = obstacle.pos.x - self.pos.x
+            dy = obstacle.pos.y - self.pos.y
+            distance = math.sqrt(dx ** 2 + dy ** 2)
+            direction_x = 0
+            direction_y = 0
+
+            if distance != 0 and distance > 80:
+                direction_x = dx / distance
+                direction_y = dy / distance
+
+            self.pos.x += direction_x * accel * dt
+            self.pos.y += direction_y * accel * dt
+
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
         """Set the player's angle to the given angle, or not if it would collide with an asteroid."""
