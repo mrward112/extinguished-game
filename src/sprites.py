@@ -92,7 +92,9 @@ class Player:
         # Collide with obstacles.
         for obstacle in obstacles:
             if point := self.mask.overlap(obstacle.mask, pg.Vector2(obstacle.mask_rect.topleft) - self.rect.topleft):
-                self.vel = (point - obstacle.pos + self.rect.topleft) * ASTEROID_BOUNCE
+                vel_length = self.vel.length() * ASTEROID_BOUNCE
+                self.vel = point - obstacle.pos + self.rect.topleft
+                self.vel.scale_to_length(vel_length)
                 return True  # Indicate a hit sound is to be played.
 
         # this portion of the code will handle the gravity of the asteroids

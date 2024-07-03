@@ -29,6 +29,7 @@ SCREEN_SIZE = pg.Vector2(800, 600)  # This is a Vector2 to enable easy mathemati
 APPLICATION_DIRECTORY = Path(__file__, "../..").resolve()  # This is the top level folder of the project.
 IMAGE_DIRECTORY = APPLICATION_DIRECTORY / "images"  # The path to the folder of images.
 SOUND_DIRECTORY = APPLICATION_DIRECTORY / "sounds"  # The path to the folder of sounds and music.
+FONT_PATH = APPLICATION_DIRECTORY / "kenney_font.ttf"  # The path to the font file.
 
 ASTEROID_IMAGE_FILENAMES = (  # The file names of the asteroid images.
     "Asteroid_60.png",
@@ -40,25 +41,6 @@ BACKGROUND_IMAGE_FILENAME = "Level Design/Background.png"
 
 FUEL_LEVEL_TEXT_POS = pg.Vector2(32, 50)
 FUEL_LEVEL_IMAGE_POS = pg.Vector2(10, 25)
-
-
-# Draw extinguisher tank function.
-# def draw_tank_bar(tank_level, screen):
-#     """ Draw the tank level bar on the screen. """
-#     bar_width = 200
-#     bar_height = 30
-#     bar_x = 10
-#     bar_y = 30
-#
-#     # Draw the background of the bar (empty part)
-#     pg.draw.rect(screen, RED, (bar_x, bar_y, bar_width, bar_height))
-#
-#     # Calculate the width of the filled part based on the tank level
-#     fill_width = (tank_level / 100) * bar_width
-#
-#     # Draw the filled part of the bar
-#     pg.draw.rect(screen, GREEN, (bar_x, bar_y, fill_width, bar_height))
-
 
 # Helpful application functions.
 def terminate() -> None:
@@ -78,6 +60,10 @@ def main() -> None:
     pg.init()
     pg.mixer.init()
 
+    #Set game clock and start time
+    timer = 30
+    game_clock = utils.Timer(1000)
+    
     # Load in the sounds and music.
     hit_sound = pg.mixer.Sound(SOUND_DIRECTORY / "mixkit-boxer-getting-hit-2055.wav")
     fire_extinguisher_sound = pg.mixer.Sound(SOUND_DIRECTORY / "fire-extinguisher-sound-effect.wav")
@@ -102,8 +88,9 @@ def main() -> None:
     # Debug variable.
     debug = True
     # Create a font using pygame-ce's default font.
-    # We can add in a nicer font later, this one is for testing.
-    font = pg.Font(None, 24)
+    debug_font = pg.Font(None, 24)
+    # Create a nice font.
+    kenney_font = pg.Font(FONT_PATH, 18)
     # Create the game bounds (width and height).
     game_size = pg.Vector2(1600, 1200)
     # Get the background image.
@@ -250,6 +237,12 @@ def main() -> None:
 
         # Update everything.
 
+        #update timer
+        if game_clock.tick():
+            timer -= 1
+            if timer < 0:
+                terminate()
+
         # Update the tank.
         if player.pushing:
             tank_level -= sprites.TANK_DECREASE * dt
@@ -352,14 +345,15 @@ def main() -> None:
             tank_text = "Tank: EMPTY"
         else:
             tank_text = f"Tank: {int(tank_level)}/{sprites.TANK_MAX}"
-        tank_text_surf = font.render(tank_text, True, RED)
+        tank_text_surf = kenney_font.render(tank_text, True, RED)
         screen.blit(tank_text_surf, FUEL_LEVEL_TEXT_POS)
 
         # Show the fps.
         if debug:
             # Read the documentation to see how to render text.
             # The `font.render` method returns a `pygame.Surface` object, which is like an image.
-            fps_surf = font.render(f"FPS: {fps:.2f}", True, WHITE, BLACK)
+            fps_surf = debug_font.render(f"FPS: {fps:.2f}", True, WHITE, BLACK)
+            timer_surf = debug_font.render(f"Time:{timer} ",True, WHITE, BLACK)
             # The `blit` method takes a Surface and a position and pastes the Surface at that position.
             # There are other arguments, but you can ignore those for now.
             # Here we have an example of why SCREEN_SIZE is a Vector2. Easy mathematical operations.
@@ -369,6 +363,7 @@ def main() -> None:
             # image is pasted from its upper-left corner. We shift the image up (by subtracting from the y) by its
             # height, so it is visible.
             screen.blit(fps_surf, (0, SCREEN_SIZE.y - fps_surf.get_height()))
+            screen.blit(timer_surf,(25,60))
 
         # Show the screen.
         # Nothing we just drew is visible yet, so we flip the surface buffers to update the screen.
