@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import main
 
 class MenuApp:
     def __init__(self, root):
@@ -88,8 +89,17 @@ class MenuApp:
         messagebox.showinfo("Credits", "1. Derek Arima (Documentation Manager) \n2. Jake Graham (Quality Assurance) \n3. Merrick Ward (Configuration Manager) \n4. Michael Child (Team Leader) \n5. Nathan Jensen (Graphic Designer) \n6. Wolf Wetzel (Project Manager)")
 
     def start_game(self, difficulty):
-        messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
-        self.main_menu()
+        # Run the main.py script
+        if difficulty == "Intro":
+            main.main()
+        elif difficulty == "Easy":
+            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
+        elif difficulty == "Medium":
+            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
+        elif difficulty == "Hard":
+            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
+        else:
+            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
 
 if __name__ == "__main__":
     root = tk.Tk()
