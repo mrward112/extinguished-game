@@ -59,6 +59,25 @@ class Player:
         This function handles movement, collision detection, etc.
         It returns a bool indicating a collision with an asteroid.
         """
+        # this portion of the code will handle the gravity of the asteroids
+
+        for obstacle in obstacles:
+            # the amount of acceleration towards the planet
+            accel = 50
+
+            dx = obstacle.pos.x - self.pos.x
+            dy = obstacle.pos.y - self.pos.y
+            distance = math.sqrt(dx ** 2 + dy ** 2)
+            direction_x = 0
+            direction_y = 0
+
+            if distance != 0 and distance < 200 and distance > 80:
+                direction_x = dx / distance
+                direction_y = dy / distance
+
+            self.pos.x += direction_x * accel * dt
+            self.pos.y += direction_y * accel * dt
+
         # Update the acceleration if the extinguisher is active.
         if self.pushing:
             self.acc.from_polar((-PLAYER_PUSH_ACC, self.angle))
@@ -96,25 +115,6 @@ class Player:
                 self.vel = point - obstacle.pos + self.rect.topleft
                 self.vel.scale_to_length(vel_length)
                 return True  # Indicate a hit sound is to be played.
-
-        # this portion of the code will handle the gravity of the asteroids
-
-        for obstacle in obstacles:
-            # the amount of acceleration towards the planet
-            accel = 50
-
-            dx = obstacle.pos.x - self.pos.x
-            dy = obstacle.pos.y - self.pos.y
-            distance = math.sqrt(dx ** 2 + dy ** 2)
-            direction_x = 0
-            direction_y = 0
-
-            if distance != 0 and distance < 200 and distance > 80:
-                direction_x = dx / distance
-                direction_y = dy / distance
-
-            self.pos.x += direction_x * accel * dt
-            self.pos.y += direction_y * accel * dt
 
 
     def rotate(self, angle: float, obstacles: list["Obstacle"]):
