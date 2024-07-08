@@ -109,7 +109,7 @@ def main() -> None:
     using_keyboard = False
 
     # Create and place the obstacles for level 1.
-    obstacles = level.SetLevelOneObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
+    obstacles = level.SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
 
     items = level.SetLevelOneItems(IMAGE_DIRECTORY)
 
