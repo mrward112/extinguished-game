@@ -21,6 +21,7 @@ import pygame as pg
 from colors import *
 import utils
 import sprites
+import level
 
 # Constants.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
@@ -107,30 +108,10 @@ def main() -> None:
     # When movement keys are pressed, the player ignores the mouse position until it moves.
     using_keyboard = False
 
-    # Load in the asteroid images.
-    asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True)
-                       for name in ASTEROID_IMAGE_FILENAMES}
-
     # Create and place the obstacles for level 1.
-    obstacles = [sprites.Obstacle((300, 250), asteroid_images["Asteroid_60.png"]),
-                 sprites.Obstacle((600, 450), asteroid_images["Asteroid_140.png"]),
-                 sprites.Obstacle((250, 900), asteroid_images["Asteroid_60.png"]),
-                 sprites.Obstacle((750, 550), asteroid_images["Asteroid_100.png"]),
-                 sprites.Obstacle((850, 1050), asteroid_images["Asteroid_100.png"]),
-                 sprites.Obstacle((1400, 900), asteroid_images["Asteroid_160.png"]),
-                 sprites.Obstacle((1500, 650), asteroid_images["Asteroid_60.png"]),
-                 sprites.Obstacle((1500, 1050), asteroid_images["Asteroid_100.png"]),
-                 ]
+    obstacles = level.SetLevelOneObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
 
-    # Create and place the items for level 1.
-    # Reduce image loading by only loading the image once.
-    fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
-    exit_image = utils.load_image(IMAGE_DIRECTORY/ "Portal.png", alpha=True)
-
-    items = [
-        sprites.Item((750, 1050), fuel_item_image),
-        sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
-    ]
+    items = level.SetLevelOneItems(IMAGE_DIRECTORY)
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
