@@ -91,9 +91,9 @@ class MenuApp:
     def start_game(self, difficulty):
         # Run the main.py script
         if difficulty == "Intro":
-            main.main()
+            main.main(1)
         elif difficulty == "Easy":
-            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
+            main.main(2)
         elif difficulty == "Medium":
             messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
         elif difficulty == "Hard":

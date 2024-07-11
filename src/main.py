@@ -22,6 +22,7 @@ from colors import *
 import utils
 import sprites
 import level
+import webbrowser
 
 # Constants.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
@@ -55,7 +56,7 @@ def terminate() -> None:
     sys.exit()
 
 
-def main() -> None:
+def main(levelnum) -> None:
     """This is the main application code."""
     # Pygame must be initialized before anything can be done with it.
     pg.init()
@@ -108,10 +109,15 @@ def main() -> None:
     # When movement keys are pressed, the player ignores the mouse position until it moves.
     using_keyboard = False
 
-    # Create and place the obstacles for level 1.
-    obstacles = level.SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
-
-    items = level.SetLevelOneItems(IMAGE_DIRECTORY)
+    # Create and place the obstacles for depedning on level.
+    if levelnum == 1:
+        obstacles = level.SetLevelOneObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
+        items = level.SetLevelOneItems(IMAGE_DIRECTORY)
+    if levelnum == 2:
+        obstacles = level.SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
+        items = level.SetLevelTwoItems(IMAGE_DIRECTORY)
+    else:
+        webbrowser.open_new("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
