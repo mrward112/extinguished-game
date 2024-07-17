@@ -58,15 +58,15 @@ class MenuApp:
         self.canvas.create_window(self.game_screen_width//2, y, window=button)
         return button
 
+    #Main display function for the menu
     def play_menu(self):
         self.clear_screen()
 
         self.root.title("Select Difficulty")
 
-        self.add_button("Intro", lambda: self.start_game("Intro"), 150)
-        self.add_button("Easy", lambda: self.start_game("Easy"), 200)
-        self.add_button("Medium", lambda: self.start_game("Medium"), 250)
-        self.add_button("Hard", lambda: self.start_game("Hard"), 300)
+        self.add_button("Level 1", lambda: self.start_game("Easy"), 200)
+        self.add_button("Level 2", lambda: self.start_game("Medium"), 250)
+        self.add_button("Level 3", lambda: self.start_game("Hard"), 300)
         self.add_button("Back", self.main_menu, 400)
 
     def settings_menu(self):
@@ -89,13 +89,11 @@ class MenuApp:
         messagebox.showinfo("Credits", "1. Derek Arima (Documentation Manager) \n2. Jake Graham (Quality Assurance) \n3. Merrick Ward (Configuration Manager) \n4. Michael Child (Team Leader) \n5. Nathan Jensen (Graphic Designer) \n6. Wolf Wetzel (Project Manager)")
 
     def start_game(self, difficulty):
-        # Run the main.py script
-        if difficulty == "Intro":
+        # Passes a number based on level selected
+        if difficulty == "Easy":
             main.main(1)
-        elif difficulty == "Easy":
-            main.main(2)
         elif difficulty == "Medium":
-            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
+            main.main(2)
         elif difficulty == "Hard":
             messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
         else:

@@ -116,8 +116,7 @@ def main(levelnum) -> None:
     if levelnum == 2:
         obstacles = level.SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
         items = level.SetLevelTwoItems(IMAGE_DIRECTORY)
-    else:
-        webbrowser.open_new("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+
 
     # I'm creating a ParticleGroup here.
     # Don't worry if you don't understand, I'll handle all the particle code.
