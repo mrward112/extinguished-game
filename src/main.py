@@ -63,7 +63,7 @@ def main(levelnum) -> None:
     pg.mixer.init()
 
     #Set game clock and start time
-    timer = 30
+    timer = 60
     game_clock = utils.Timer(1000)
     
     # Load in the sounds and music.
@@ -334,12 +334,14 @@ def main(levelnum) -> None:
         tank_text_surf = kenney_font.render(tank_text, True, RED)
         screen.blit(tank_text_surf, FUEL_LEVEL_TEXT_POS)
 
+        timer_surf = debug_font.render(f"Time:{timer} ",True, WHITE, BLACK)
+        screen.blit(timer_surf,(700,45))
+
         # Show the fps.
         if debug:
             # Read the documentation to see how to render text.
             # The `font.render` method returns a `pygame.Surface` object, which is like an image.
             fps_surf = debug_font.render(f"FPS: {fps:.2f}", True, WHITE, BLACK)
-            timer_surf = debug_font.render(f"Time:{timer} ",True, WHITE, BLACK)
             # The `blit` method takes a Surface and a position and pastes the Surface at that position.
             # There are other arguments, but you can ignore those for now.
             # Here we have an example of why SCREEN_SIZE is a Vector2. Easy mathematical operations.
@@ -349,7 +351,7 @@ def main(levelnum) -> None:
             # image is pasted from its upper-left corner. We shift the image up (by subtracting from the y) by its
             # height, so it is visible.
             screen.blit(fps_surf, (0, SCREEN_SIZE.y - fps_surf.get_height()))
-            screen.blit(timer_surf,(25,60))
+            
 
         # Show the screen.
         # Nothing we just drew is visible yet, so we flip the surface buffers to update the screen.

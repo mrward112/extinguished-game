@@ -2,6 +2,7 @@ from pathlib import Path
 import sprites
 import utils
 
+# The function to create and place obsracles for level 1.
 def SetLevelOneObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES):
     asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True)
                        for name in ASTEROID_IMAGE_FILENAMES}
@@ -19,8 +20,7 @@ def SetLevelOneObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES):
     return obstacles
 
 
-# Create and place the items for level 1.
-# Reduce image loading by only loading the image once.
+# The function to create and place the items for level 1.
 def SetLevelOneItems(IMAGE_DIRECTORY):
     fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
     exit_image = utils.load_image(IMAGE_DIRECTORY/ "Portal.png", alpha=True)
@@ -31,7 +31,7 @@ def SetLevelOneItems(IMAGE_DIRECTORY):
     ]
     
     return items
- 
+# The function to create and place obsracles for level 2.
 def SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES):
     asteroid_images = {name: utils.load_image(IMAGE_DIRECTORY / name, alpha=True)
                        for name in ASTEROID_IMAGE_FILENAMES}
@@ -49,6 +49,7 @@ def SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES):
 
     return obstacles
 
+# The function to create and place obsracles for level 2.
 def SetLevelTwoItems(IMAGE_DIRECTORY):
     fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
     exit_image = utils.load_image(IMAGE_DIRECTORY/ "Portal.png", alpha=True)
