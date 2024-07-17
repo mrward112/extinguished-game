@@ -53,11 +53,30 @@ def SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES):
 def SetLevelTwoItems(IMAGE_DIRECTORY):
     fuel_item_image = utils.load_image(IMAGE_DIRECTORY / "Fire_ex.png", alpha=True)
     exit_image = utils.load_image(IMAGE_DIRECTORY/ "Portal.png", alpha=True)
+    teleporter_image = utils.load_image(IMAGE_DIRECTORY / "Teleporter.png", alpha=True)
+    
+    # create teleporters
+    teleporters = {
+        'A': sprites.Teleporter((900, 1070), teleporter_image, 'A'),
+        'B': sprites.Teleporter((1400, 1000), teleporter_image, 'B'),
+        # 'C': sprites.Teleporter((1100, 700), teleporter_image, 'C'),
+        # 'D': sprites.Teleporter((500, 200), teleporter_image, 'D')
+    }  
 
+    # links teleporters
+    teleporters['A'].link(teleporters['B'])  
+    teleporters['B'].link(teleporters['A'])
+    # teleporters['C'].link(teleporters['D'])
+    # teleporters['D'].link(teleporters['C'])
+
+    
     items = [
         sprites.Item((750, 1050), fuel_item_image),
-        sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT)
+        sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT),
+        *teleporters.values()
+        # sprites.Item((900, 1070),teleporter_image, sprites.ItemType.Teleporter),
+        # sprites.Item((1400, 1000),teleporter_image, sprites.ItemType.Teleporter)
     ]
-    
+
     return items
 

@@ -109,7 +109,7 @@ def main(levelnum) -> None:
     # When movement keys are pressed, the player ignores the mouse position until it moves.
     using_keyboard = False
 
-    # Create and place the obstacles for depedning on level.
+    # Create and place the obstacles depending on the level.
     if levelnum == 1:
         obstacles = level.SetLevelOneObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
         items = level.SetLevelOneItems(IMAGE_DIRECTORY)
@@ -254,7 +254,7 @@ def main(levelnum) -> None:
                 # Activate item effects.
                 if item.type is sprites.ItemType.FUEL:
                     tank_level = sprites.TANK_MAX
-                
+
                 if item.type is sprites.ItemType.EXIT:
                     terminate()
 
@@ -265,6 +265,13 @@ def main(levelnum) -> None:
         # Update the items.
         for item in items:
             item.update(dt)
+
+        # Check for player interaction with teleporters
+        for item in items:
+            if isinstance(item, sprites.Teleporter):
+                if player.rect.colliderect(item.rect):
+                    item.interact(player)
+
 
         # Spawn portal dust.
         if portal_dust_spawn_timer.tick():
