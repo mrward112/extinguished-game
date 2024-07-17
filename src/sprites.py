@@ -63,7 +63,7 @@ class Player:
 
         for obstacle in obstacles:
             # the amount of acceleration towards the planet
-            accel = 50
+            accel = 45
 
             dx = obstacle.pos.x - self.pos.x
             dy = obstacle.pos.y - self.pos.y
@@ -71,7 +71,7 @@ class Player:
             direction_x = 0
             direction_y = 0
 
-            if distance != 0 and distance < 200 and distance > 90:
+            if distance != 0 and distance < 300 and distance > 150:
                 direction_x = dx / distance
                 direction_y = dy / distance
 
