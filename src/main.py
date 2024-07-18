@@ -249,7 +249,7 @@ def main(levelnum) -> None:
         # Test for item collision.
         for item in items[:]:  # Loop over a copy of the list because we will be removing items.
             # Using squared distance is faster.
-            if item.pos.distance_squared_to(player.pos) < sprites.PLAYER_PICKUP_RANGE ** 2:
+            if item.pos.distance_squared_to(player.pos) < sprites.PLAYER_PICKUP_RANGE ** 2 and not isinstance(item, sprites.Teleporter):
                 items.remove(item)  # De-spawn the item.
                 # Activate item effects.
                 if item.type is sprites.ItemType.FUEL:

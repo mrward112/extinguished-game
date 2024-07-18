@@ -194,6 +194,8 @@ class Item:
         screen.blit(self.image, self.rect.topleft + camera)
 
 class Teleporter:
+    # COOLDOWN_TIME = 2 #adds a wait period to prevent teleport spam
+
     def __init__(self, pos: Sequence[float], image: pg.Surface, identifier: str):
         self.pos = pg.Vector2(pos)
         self.image = image
@@ -201,6 +203,7 @@ class Teleporter:
         self.identifier = identifier
         self.linked_teleporter: Optional['Teleporter'] = None  # Link to another teleporter
         self.type = ItemType.TELEPORTER
+        # self.cooldown = 0  #initialize cooldown
 
     def link(self, other: 'Teleporter'):
         """Link this teleporter to another teleporter."""
@@ -209,7 +212,11 @@ class Teleporter:
     def interact(self, player: 'Player'):
         """Transport the player to the linked teleporter if it exists."""
         if self.linked_teleporter:
-            player.pos = self.linked_teleporter.pos
+        # if self.linked_teleporter and self.cooldown <= 0:
+
+            player.pos = self.linked_teleporter.pos 
+            # self.cooldown = self.COOLDOWN_TIME #Sets cooldown to teleporter
+            # self.linked_teleporter.cooldown = self.COOLDOWN_TIME #also sets a cooldown to linked teleporter
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the teleporter to the screen."""
@@ -217,4 +224,6 @@ class Teleporter:
 
     def update(self, dt: float):
         """Update method for any future functionality (e.g., animations)."""
+        # if self.cooldown > 0:
+        #     self.cooldown -= dt
         pass

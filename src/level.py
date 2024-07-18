@@ -74,8 +74,6 @@ def SetLevelTwoItems(IMAGE_DIRECTORY):
         sprites.Item((750, 1050), fuel_item_image),
         sprites.Item((1450,300),exit_image,sprites.ItemType.EXIT),
         *teleporters.values()
-        # sprites.Item((900, 1070),teleporter_image, sprites.ItemType.Teleporter),
-        # sprites.Item((1400, 1000),teleporter_image, sprites.ItemType.Teleporter)
     ]
 
     return items
