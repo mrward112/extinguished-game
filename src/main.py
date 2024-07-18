@@ -116,6 +116,9 @@ def main(levelnum) -> None:
     if levelnum == 2:
         obstacles = level.SetLevelTwoObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
         items = level.SetLevelTwoItems(IMAGE_DIRECTORY)
+    if levelnum == 3:
+        obstacles = level.SetLevelThreeObstacles(IMAGE_DIRECTORY,ASTEROID_IMAGE_FILENAMES)
+        items = level.SetLevelThreeItems(IMAGE_DIRECTORY)
 
 
     # I'm creating a ParticleGroup here.
