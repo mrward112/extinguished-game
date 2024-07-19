@@ -89,7 +89,7 @@ def main(levelnum) -> None:
     # Create the Clock object, which will keep track of frame-rate and delta-time.
     clock = pg.time.Clock()
     # Debug variable.
-    debug = True
+    debug = False
     # Create a font using pygame-ce's default font.
     debug_font = pg.Font(None, 24)
     # Create a nice font.
