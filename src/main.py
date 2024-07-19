@@ -23,6 +23,7 @@ import utils
 import sprites
 import level
 import webbrowser
+import menu
 
 # Constants.
 FPS = 0  # Set to 0 for unbounded frame-rate. Setting this to 60 will limit the game to 60 fps.
