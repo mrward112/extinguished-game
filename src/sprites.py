@@ -3,7 +3,7 @@
 # Standard library imports.
 import random
 import math
-from typing import Sequence
+from typing import Sequence, Optional
 from enum import Enum, auto
 
 # Third-party library imports.
@@ -22,6 +22,7 @@ PLAYER_PICKUP_RANGE = 40  # The radius which will collide with item objects.
 TANK_DECREASE = 5  # The speed the tank should decrease at per second.
 TANK_MAX = 100  # The maximum value of the tank.
 PORTAL_ROTATE_SPEED = 100  # The speed the portal rotates at.
+TELEPORTER_POSITION = pg.Vector2(400, 300)
 
 MAX_ASTEROID_ROT_SPEED = 20  # The maximum speed an asteroid can rotate at.
 ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an asteroid.
@@ -34,6 +35,7 @@ ASTEROID_BOUNCE = 0.8  # The percentage of speed to keep when bouncing off an as
 class ItemType(Enum):
     FUEL = auto()
     EXIT = auto()
+    TELEPORTER = auto()
 
 
 class Player:
@@ -190,3 +192,38 @@ class Item:
     def draw(self, screen: pg.Surface, camera: pg.Vector2):
         """Draw the item to the screen."""
         screen.blit(self.image, self.rect.topleft + camera)
+
+class Teleporter:
+    COOLDOWN_TIME = 2 #adds a wait period to prevent teleport spam
+
+    def __init__(self, pos: Sequence[float], image: pg.Surface, identifier: str):
+        self.pos = pg.Vector2(pos)
+        self.image = image
+        self.rect = self.image.get_rect(center=pos)
+        self.identifier = identifier
+        self.linked_teleporter: Optional['Teleporter'] = None  # Link to another teleporter
+        self.type = ItemType.TELEPORTER
+        self.cooldown = 0  #initialize cooldown
+
+    def link(self, other: 'Teleporter'):
+        """Link this teleporter to another teleporter."""
+        self.linked_teleporter = other
+
+    def interact(self, player: 'Player'):
+        """Transport the player to the linked teleporter if it exists."""
+        # if self.linked_teleporter:
+        if self.linked_teleporter and self.cooldown <= 0:
+
+            player.pos = self.linked_teleporter.pos 
+            self.cooldown = self.COOLDOWN_TIME #Sets cooldown to teleporter
+            self.linked_teleporter.cooldown = self.COOLDOWN_TIME #also sets a cooldown to linked teleporter
+
+    def draw(self, screen: pg.Surface, camera: pg.Vector2):
+        """Draw the teleporter to the screen."""
+        screen.blit(self.image, self.rect.topleft + camera)
+
+    def update(self, dt: float):
+        """Update method for any future functionality (e.g., animations)."""
+        if self.cooldown > 0:
+            self.cooldown -= dt
+        # pass

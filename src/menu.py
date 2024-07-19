@@ -95,7 +95,7 @@ class MenuApp:
         elif difficulty == "Medium":
             main.main(2)
         elif difficulty == "Hard":
-            messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
+            main.main(3)
         else:
             messagebox.showinfo("Game Start", f"Starting {difficulty} level!")
 

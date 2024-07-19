@@ -79,9 +79,9 @@ class Timer:
         return False
 
 
-# Don't worry about understanding these classes.
-# I use them for high-performance particle systems.
+# These are for high-performance particle systems.
 class ImageCache:
+    """Utility class for caching images from certain data for fast access."""
     def __init__(self, make_image_func: Callable[[Hashable], pg.Surface]):
         self.cache: dict[Hashable, pg.Surface] = {}
         self.make_image = make_image_func
@@ -97,24 +97,29 @@ class ImageCache:
         self.cache: dict[Hashable, pg.Surface] = {}
 
     def get_image(self, item: Hashable) -> pg.Surface:
+        """If the requested image exists, return it. Otherwise, create, cache, and return the image."""
         if item not in self.cache:
             self.cache[item] = self.make_image(item)
         return self.cache[item]
 
 
 class Particle:
+    """The base particle class. Should be overwritten with custom behavior."""
     def update(self, dt: float, *args, **kwargs) -> bool:
         """Return False when particle should be removed."""
         return True
 
     def draw_pos(self, image: pg.Surface) -> Sequence[float]:
+        """Given the particle image, return the position the image should be blit at."""
         raise NotImplementedError
 
     def cache_lookup(self) -> Hashable:
+        """The item to be passed to the ``ImageCache.make_image`` function."""
         return 1
 
 
 class SmokeParticle(Particle):
+    """The extinguisher smoke particles that appear when the player is thrusting."""
     def __init__(self, pos: Sequence[float], vel: Sequence[float], radius: int):
         self.pos = pg.Vector2(pos)  # noqa
         self.vel = pg.Vector2(vel)  # noqa
@@ -123,19 +128,23 @@ class SmokeParticle(Particle):
         self.start_time = pg.time.get_ticks()
 
     def update(self, dt: float, *args, **kwargs) -> bool:
+        # Delete the particles when their lifetime expires.
         if pg.time.get_ticks() - self.start_time >= self.life_time:
             return False
         self.pos += self.vel * dt
         return True
 
     def draw_pos(self, image: pg.Surface) -> Sequence[float]:
+        # Center the image on the particle's position.
         return self.pos - (self.radius, self.radius)
 
     def cache_lookup(self) -> Hashable:
+        # The radius is the only difference between these particles.
         return self.radius
 
 
 class PortalParticle(Particle):
+    """The portal dust particle, sucked towards the center of the wormhole."""
     def __init__(self, pos: Sequence[float], target: Sequence[float], speed: int = 20):
         self.pos = pg.Vector2(pos)  # noqa
         self.target_pos = pg.Vector2(target)  # noqa
@@ -143,17 +152,21 @@ class PortalParticle(Particle):
         self.target_vector.scale_to_length(speed)
 
     def update(self, dt: float, *args, **kwargs) -> bool:
+        # Go towards the target, deleting if too close.
         self.pos += self.target_vector * dt
         return self.pos.distance_squared_to(self.target_pos) > 20
 
     def draw_pos(self, image: pg.Surface) -> Sequence[float]:
+        # Center the image on the particle position.
         return self.pos - image.get_size()
 
     def cache_lookup(self) -> Hashable:
+        # All dust particles are the same.
         return 1
 
 
 class ParticleGroup:
+    """The container class that holds, updates, and draws particles."""
     def __init__(self, image_cache: ImageCache, blend: int = pg.BLENDMODE_NONE,
                  particles: Optional[list[Particle]] = None):
         self.particles: list[Particle] = particles if particles is not None else []
@@ -164,17 +177,21 @@ class ParticleGroup:
         return len(self.particles)
 
     def add(self, particles: Particle | Iterable[Particle]):
+        """Add a particle or a sequence of particles to the ParticleGroup."""
         if isinstance(particles, Particle):
             self.particles.append(particles)
         else:
             self.particles.extend(particles)
 
     def update(self, dt: float, *args, **kwargs):
+        """Update all the particles, deleting them when they expire."""
         self.particles = [p for p in self.particles if p.update(dt, *args, **kwargs)]
 
     def _get_draw_tuple(self, p: Particle, camera: pg.Vector2) -> tuple[pg.Surface, Sequence[float]]:
+        """Internal method to get the (image, blit_pos) for each particle."""
         image = self.image_cache.get_image(p.cache_lookup())
         return image, p.draw_pos(image) + camera
 
     def draw(self, screen: pg.Surface, camera: pg.Vector2, blend: int = pg.BLENDMODE_NONE):
+        """Blit all particles on the screen with a certain blend mode."""
         screen.fblits([self._get_draw_tuple(p, camera) for p in self.particles], blend if blend else self.blend)  # noqa
